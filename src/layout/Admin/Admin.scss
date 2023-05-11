@@ -1,0 +1,11 @@
+.admin{
+    display: flex;
+    .admin-left{
+        flex: 3;
+        background-color: aqua;
+    }
+    .admin-right{
+        flex: 9;
+        background-color: rgb(79, 52, 199);
+    }
+}
