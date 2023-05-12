@@ -1,10 +1,14 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Default from "./layout/Default/Default";
+// import Default from "./layout/Default/Default";
 import AdminLayout from "./layout/Admin/Admin";
-import Sidebar from "./layout/Sidebar/Sidebar";
-import Dashboard from "./components/admin/dashboard/Dashboard";
-import User from "./components/admin/user/User";
-import MovieTheater from "./components/admin/movietheater/MovieTheater";
+// import Sidebar from "./layout/Sidebar/Sidebar";
+import Dashboard from "./pages/dashboard/Dashboard";
+import User from "./pages/user/User";
+import MovieTheater from "./pages/movietheater/MovieTheater";
+import Movie from "./pages/movie/Movie";
+import ShowTime from "./pages/showtime/ShowTime";
+import Ticket from "./pages/ticket/Ticket";
+import New from "./pages/new/New";
 
 function App() {
   return (
@@ -22,6 +26,10 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/user" element={<User />} />
             <Route path="/movietheater" element={<MovieTheater />} />
+            <Route path="/movies" element={<Movie />} />
+            <Route path="/showtimes" element={<ShowTime />} />
+            <Route path="/tickets" element={<Ticket />} />
+            <Route path="/news" element={<New />} />
           </Route>
         </Routes>
       </Router>
