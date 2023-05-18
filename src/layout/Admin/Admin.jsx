@@ -60,7 +60,7 @@ const Admin = () => {
   ];
   const dispatch = useDispatch();
 
-  // redux -> check title and checked show title
+  // redux -> check subtitle and checked show subtitle
   const subtitle = useSelector(state => state.global.title);
 
   // chuyển trang theo title menu
@@ -71,8 +71,19 @@ const Admin = () => {
     navigate(item.path);
     dispatch(updatedTitle(""))
     dispatch(updatedChecked(false))
+
+    // add class active 
+    const listItems = document.querySelectorAll('.admin-left-listItem');
+    listItems.forEach(element => {
+      if(element.textContent === item.name){
+        element.classList.add('active');
+      }else{
+        element.classList.remove('active');
+      }
+    });
   }
 
+  // check title main and show title
   useEffect(()=>{
     listTitles.map(item => {
       if(item.path === location.pathname){
@@ -80,6 +91,8 @@ const Admin = () => {
       }
     })
   }, [location.pathname]);
+
+
   
   return (
     <div className="admin">

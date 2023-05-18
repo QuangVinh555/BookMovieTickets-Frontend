@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import "./User.scss";
 import UserInfo from '../../components/user/userInfo/UserInfo';
 import UserType from '../../components/user/userType/UserType';
@@ -9,7 +9,7 @@ import { updatedChecked, updatedTitle } from '../../redux/global/GlobalSlice';
 
 
 const User = () => {
-  const listTitles = ["Thông tin user", "Loại quyền user", "Hạng user", "Điểm thưởng user"]
+  const listTitles = ["Thông tin user", "Loại quyền user", "Hạng user"]
 
   const dispatch = useDispatch();
 
@@ -22,6 +22,18 @@ const User = () => {
     dispatch(updatedChecked(true))
 
   }
+
+  useEffect(()=>{
+    const checkElement = document.querySelector(".user");
+      if(checked) {
+      checkElement.classList.remove("user-container");
+      }
+      else{
+        checkElement.classList.add("user-container");
+
+      }
+  })
+  
   return (
     <div className="user">
       {
