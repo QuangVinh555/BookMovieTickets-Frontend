@@ -5,6 +5,9 @@ import UserTypeReducer from "./userType/UserTypeSlice";
 import UserRankReducer from "./userRank/UserRankSlice";
 import LocationReducer from "./location/LocationSlice";
 import CinemaTypeReducer from "./cinemaType/CinemaTypeSlice";
+import CinemaNameReducer from "./cinemaName/CinemaNameSlice";
+import CinemaRoomReducer from "./cinemaRoom/CinemaRoomSlice";
+import ChairReducer from "./chair/ChairSlice";
 export default configureStore({
     reducer: {
         global: GlobalReducer,
@@ -12,6 +15,9 @@ export default configureStore({
         userType: UserTypeReducer,
         userRank: UserRankReducer,
         location: LocationReducer,
-        cinemaType: CinemaTypeReducer
+        cinemaType: CinemaTypeReducer,
+        cinemaName: CinemaNameReducer,
+        cinemaRoom: CinemaRoomReducer,
+        chair: ChairReducer,
     }  
 });
