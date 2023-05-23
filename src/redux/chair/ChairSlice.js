@@ -20,9 +20,24 @@ export const ChairSlice = createSlice({
             state.chairs = action.payload
             state.error = false;
         },
+        createChair: (state, action) => {
+            state.pending = false;
+            state.chair = action.payload
+            state.error = false;
+        },
+        updateChair: (state, action) => {
+            state.pending = false;
+            state.chair = action.payload
+            state.error = false;
+        },
+        deleteChair: (state, action) => {
+            state.pending = false;
+            state.chair = action.payload
+            state.error = false;
+        }
        
     }
 });
 
-export const {chairStart, chairError, getAllChairByCinemaRoomId} = ChairSlice.actions;
+export const {chairStart, chairError, getAllChairByCinemaRoomId, createChair, updateChair, deleteChair} = ChairSlice.actions;
 export default ChairSlice.reducer;
