@@ -11,7 +11,7 @@ import CinemaType from '../../components/movietheater/cinemaType/CinemaType';
 
 const MovieTheater = () => {
 
-  const listTitles = ["Vị trí", "Loại rạp", "Tên rạp", "Phòng chiếu", "Loại ghế", "Ghế"]
+  const listTitles = ["Vị trí", "Loại rạp", "Tên rạp", "Phòng chiếu"]
 
   const dispatch = useDispatch();
 

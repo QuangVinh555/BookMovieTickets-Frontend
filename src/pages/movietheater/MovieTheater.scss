@@ -1,12 +1,15 @@
 .movietheater{
     // text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
     &.movietheater-container{
-        margin-top: 80px;
+        margin-top: 70px;
     }
     .movietheater-btn{
-        width: 40%;
         padding: 30px 0;
-        margin: 20px 50px;
+        margin: 20px 200px;
         border: none;
         border-radius: 20px;
         font-size: 2rem;
