@@ -232,7 +232,7 @@ const Movie = () => {
       authorEdit === "" ||
       producerEdit === "" ||
       actorEdit === "" ||
-      linkTrailer === ""
+      linkTrailerEdit === ""
     ) {
       toast.info("Vui lòng nhập đầy đủ thông tin !", {
         position: toast.POSITION.TOP_RIGHT,
