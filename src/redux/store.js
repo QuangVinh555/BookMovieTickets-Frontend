@@ -9,6 +9,8 @@ import CinemaNameReducer from "./cinemaName/CinemaNameSlice";
 import CinemaRoomReducer from "./cinemaRoom/CinemaRoomSlice";
 import ChairReducer from "./chair/ChairSlice";
 import MovieReducer from "./movie/MovieSlice";
+import ShowTimeReducer from "./showTime/ShowTimeSlice";
+import HourTimeReducer from "./hourTime/HourTimeSlice";
 export default configureStore({
     reducer: {
         global: GlobalReducer,
@@ -21,5 +23,7 @@ export default configureStore({
         cinemaRoom: CinemaRoomReducer,
         chair: ChairReducer,
         movie: MovieReducer,
+        showTime: ShowTimeReducer,
+        hourTime: HourTimeReducer,
     }  
 });
