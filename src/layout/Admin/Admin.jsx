@@ -92,8 +92,9 @@ const Admin = () => {
     })
   }, [location.pathname]);
 
-
-  
+  // get token 
+  const token = useSelector(state => state.auth.token)
+  console.log(token)
   return (
     <div className="admin">
         <div className="admin-left">
@@ -131,8 +132,8 @@ const Admin = () => {
             <div className="admin-right-profile">
               <img src={noAvatar} alt="" className="admin-right-logo" />
               <div className="admin-right-info">
-                <h3>Quang Vinh</h3>
-                <span>0822033738</span>
+                <h3>{token.Username}</h3>
+                <span>{token.PhoneNumber}</span>
               </div>
             </div>
           </div>

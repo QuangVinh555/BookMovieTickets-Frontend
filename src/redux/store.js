@@ -11,6 +11,7 @@ import ChairReducer from "./chair/ChairSlice";
 import MovieReducer from "./movie/MovieSlice";
 import ShowTimeReducer from "./showTime/ShowTimeSlice";
 import HourTimeReducer from "./hourTime/HourTimeSlice";
+import AuthReducer from "./auth/AuthSlice";
 export default configureStore({
     reducer: {
         global: GlobalReducer,
@@ -25,5 +26,6 @@ export default configureStore({
         movie: MovieReducer,
         showTime: ShowTimeReducer,
         hourTime: HourTimeReducer,
+        auth: AuthReducer
     }  
 });

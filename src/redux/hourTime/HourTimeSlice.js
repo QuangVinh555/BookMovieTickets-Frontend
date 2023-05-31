@@ -20,6 +20,16 @@ export const ShowTimeSlice = createSlice({
             state.hourTimes = action.payload;
             state.error = false;
         },
+        getAllHourTimeByShowTimeId: (state, action) => {
+            state.pending = false;
+            state.hourTimes = action.payload;
+            state.error = false;
+        },
+        getAllHourTimes: (state, action) => {
+            state.pending = false;
+            state.hourTimes = action.payload;
+            state.error = false;
+        },
         createHourTime: (state, action) => {
             state.pending = false;
             state.hourTime = action.payload;
@@ -33,5 +43,7 @@ export const ShowTimeSlice = createSlice({
     }
 });
 
-export const {hourTimeStart, hourTimeError, getAllHourTimeByCinemaRoomId, createHourTime, deleteHourTime} = ShowTimeSlice.actions;
+export const {hourTimeStart, hourTimeError, getAllHourTimeByCinemaRoomId, 
+    getAllHourTimeByShowTimeId, createHourTime, deleteHourTime,
+    getAllHourTimes} = ShowTimeSlice.actions;
 export default ShowTimeSlice.reducer;
