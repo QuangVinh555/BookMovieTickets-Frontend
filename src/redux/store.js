@@ -12,6 +12,10 @@ import MovieReducer from "./movie/MovieSlice";
 import ShowTimeReducer from "./showTime/ShowTimeSlice";
 import HourTimeReducer from "./hourTime/HourTimeSlice";
 import AuthReducer from "./auth/AuthSlice";
+import ChairStatusReducer from "./chairStatus/ChairStatusSlice";
+import BookTicketReducer from "./bookTicket/BookTicketSlice";
+import BookTicketDetailReducer from "./bookTicketDetail/BookTicketDetailSlice";
+import ComboReducer from "./combo/ComboSlice";
 export default configureStore({
     reducer: {
         global: GlobalReducer,
@@ -26,6 +30,10 @@ export default configureStore({
         movie: MovieReducer,
         showTime: ShowTimeReducer,
         hourTime: HourTimeReducer,
-        auth: AuthReducer
+        auth: AuthReducer,
+        chairStatus: ChairStatusReducer,
+        bookTicket: BookTicketReducer,
+        bookTicketDetail: BookTicketDetailReducer,
+        combo: ComboReducer,
     }  
 });

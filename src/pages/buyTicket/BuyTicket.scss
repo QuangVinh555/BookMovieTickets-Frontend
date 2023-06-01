@@ -561,5 +561,18 @@
             transform: rotate(360deg);
           }
         }
-  }
+    }
+
+
+
+
+     // toast message
+     .Toastify{
+        font-size: 1.5rem;
+        
+        .Toastify__toast-container{
+            
+            margin-top: 50px;
+        }
+    }
 }

@@ -51,7 +51,7 @@ const Login = () => {
                   autoClose: 2000,
                 }      
             );  
-
+       
             dispatch(updateAuth(0));
         }
     }

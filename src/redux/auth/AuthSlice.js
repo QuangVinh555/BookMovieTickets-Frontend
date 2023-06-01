@@ -6,7 +6,8 @@ export const ChairSlice = createSlice({
         error: false,
         auth: null,
         token: "",
-        isAuth: 0
+        isAuth: 0,
+        isPage: 0,
     },
     reducers:{
         authStart: (state) => {
@@ -34,8 +35,13 @@ export const ChairSlice = createSlice({
             state.auth = action.payload
             state.error = false;
         },
+        getPage(state, action) {
+            state.pending = false;
+            state.isPage = action.payload
+            state.error = false;
+        }
     }
 });
 
-export const {authStart, authError, updateAuth, login, getToken, register} = ChairSlice.actions;
+export const {authStart, authError, updateAuth, login, getToken, register, getPage} = ChairSlice.actions;
 export default ChairSlice.reducer;

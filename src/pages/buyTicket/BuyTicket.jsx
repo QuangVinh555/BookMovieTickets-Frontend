@@ -26,6 +26,11 @@ import {
   getAllHourTimeByShowTimeIdApi,
   getAllHourTimesApi,
 } from "../../redux/hourTime/HourTimeApi";
+import ChairStatus from "../../components/chairStatus/ChairStatus";
+import { createBookTicketApi } from "../../redux/bookTicket/BookTicketApi";
+import { updateAuth } from "../../redux/auth/AuthSlice";
+import { ToastContainer, toast } from "react-toastify";
+
 
 const BuyTicket = () => {
   const dispatch = useDispatch();
@@ -39,7 +44,10 @@ const BuyTicket = () => {
   const showTimes = useSelector((state) => state.showTime.showTimes);
   const movies = useSelector((state) => state.movie.movies);
   const hourTimes = useSelector((state) => state.hourTime.hourTimes);
+  const token = useSelector(state => state.auth.token)
 
+
+ 
   // Tạo một đối tượng Date mới
   var date = new Date();
   // Lấy thông tin về ngày, tháng, năm
@@ -239,15 +247,6 @@ const BuyTicket = () => {
     getAllShowtime(dataCinemaName?.id, dateShowTime);
   }, [dataCinemaName, dateShowTime]);
 
-  // // get all hourtime by showtimeId
-  // useEffect(() => {
-  //     const getAllHourTimeByShowTimeId = async () => {
-  //         await showTimes.map((showtime) => {
-  //             getAllHourTimeByShowTimeIdApi(showtime.data.id, dispatch);
-  //         })
-  //     }
-  //     getAllHourTimeByShowTimeId();
-  // }, [showTimes]);
 
   // get all hourtime by showtimeId
   useEffect(() => {
@@ -257,6 +256,37 @@ const BuyTicket = () => {
     getAllHourTimes();
   }, [showTimes]);
 
+  const [openChairStatus, setOpenChairStatus] = useState(false);
+  const [dataHourTime, setDataHourTime] = useState();
+  const [dataShowTime, setDataShowTime] = useState();
+  const handleGetChairByHourTime = async (_hourTime, _showTime) => {
+      setDataHourTime(_hourTime);
+      setDataShowTime(_showTime);
+    // kiểm tra đăng nhập hay chưa, để tạo vé
+    if(token === ""){
+      dispatch(updateAuth(1));
+      toast.info(
+        "Bạn hãy đăng nhập để chọn ghế !",
+        {
+          position: toast.POSITION.TOP_RIGHT,
+          autoClose: 2000,
+        }      
+      );  
+    }else{
+   
+      setOpenChairStatus(true);
+      // tạo vé 
+      const newBookTicket = {
+        UserId: token.Id,
+        ShowTimeId: _showTime?.id,
+        HourTimeId: _hourTime?.id
+      }
+      await createBookTicketApi(newBookTicket, dispatch);
+    }
+
+  }
+
+     
   return (
     <div className="buyticket">
         {
@@ -440,7 +470,7 @@ const BuyTicket = () => {
                             hourTimes.map(hourTime => {
                                 if(hourTime.data.showTimeId === showTime.data.id){
                                     return (
-                                        <button>{hourTime.data.time} ~ {hourTime.data.endTime}</button>
+                                        <button key={hourTime.data.id} onClick={() => handleGetChairByHourTime(hourTime.data, showTime.data)}>{hourTime.data.time} ~ {hourTime.data.endTime}</button>
                                         )
                                     }
                             })
@@ -454,6 +484,20 @@ const BuyTicket = () => {
           </div>
         </div>
       </div>
+      {
+        openChairStatus && (
+          <ChairStatus 
+            hourTime = {dataHourTime} 
+            openChairStatus = {openChairStatus}
+            setOpenChairStatus = {setOpenChairStatus} 
+            showTime = {dataShowTime}
+            dateShowTime = {dateShowTime}
+          />
+        )
+      }
+
+     
+      <ToastContainer />
     </div>
   );
 };
