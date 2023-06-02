@@ -15,13 +15,21 @@ export const BookTicketSlice = createSlice({
             state.pending = false;
             state.error = true;
         },   
+        cancelErrorBookTicket: (state,action) => {
+            state.error = action.payload
+        },
         createBookTicket: (state, action) => {
             state.pending = false;
             state.bookTicket = action.payload;
-            state.error = true;
+            state.error = false;
+        },   
+        updateBookTicket: (state, action) => {
+            state.pending = false;
+            state.bookTicket = action.payload;
+            state.error = false;
         },   
     }
 });
 
-export const {bookTicketStart, bookTicketError, createBookTicket} = BookTicketSlice.actions;
+export const {bookTicketStart, bookTicketError, createBookTicket, updateBookTicket, cancelErrorBookTicket} = BookTicketSlice.actions;
 export default BookTicketSlice.reducer;

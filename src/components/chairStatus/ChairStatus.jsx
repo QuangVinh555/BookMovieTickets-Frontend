@@ -11,6 +11,9 @@ import { ToastContainer, toast } from 'react-toastify';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
 import { getAllComboByDateNowApi } from '../../redux/combo/ComboApi';
+import CloseIcon from '@mui/icons-material/Close';
+import { updateBookTicketApi } from '../../redux/bookTicket/BookTicketApi';
+import { cancelErrorBookTicket } from '../../redux/bookTicket/BookTicketSlice';
 
 const ChairStatus = (props) => {
     const {hourTime, openChairStatus, setOpenChairStatus, showTime, dateShowTime} = props; 
@@ -19,6 +22,9 @@ const ChairStatus = (props) => {
     const listChairStatus = useSelector(state => state.chairStatus.listChairStatus);
     const bookTicket = useSelector(state => state.bookTicket.bookTicket);
     const combos = useSelector(state => state.combo.combos);
+    const token = useSelector(state => state.auth.token)
+    const error = useSelector(state => state.bookTicket.error);
+    const pending = useSelector(state => state.bookTicket.pending);
 
     let formattedDate = new Date(dateShowTime).toLocaleDateString('en-GB');
 
@@ -34,13 +40,6 @@ const ChairStatus = (props) => {
     const hadndleBack = async () => {
         setOpenChairStatus(false);
     }
-    
-    useEffect(() => {
-            const setChariStatus = async () => {
-                await deleteBookTicketDetailByStateApi(bookTicket?.data.id, hourTime.id, dispatch)
-            }
-            setChariStatus();
-    }, [!openChairStatus])
 
     // tránh nỗi bọt
     const handlePropagation = (e) => {
@@ -50,7 +49,7 @@ const ChairStatus = (props) => {
     // chọn ghế
     const [dataChair, setDataChair] = useState();
     const [isLoadChair, setIsLoadChair] = useState(false);
-   
+   console.log(dataChair);
     // khi nào chọn ghế, thì các ghế được chọn sẽ được thêm vào mảng này
     const [selectedChairs, setSelectedChairs] = useState([]);
     const handleSelectedChair = async(event,chair) => {
@@ -60,8 +59,8 @@ const ChairStatus = (props) => {
             event.preventDefault();
         }else{
             const newBookTicketDetail = {
-                BookTicketId: bookTicket.data.id,
-                ChairId: chair.chairId,
+                BookTicketId: bookTicket?.data.id,
+                ChairId: chair?.chairId,
                 TicketPrice: showTime.ticketPrice,
                 HourTimeId: hourTime.id,
             }
@@ -71,16 +70,15 @@ const ChairStatus = (props) => {
             if (index > -1) {
               // Ghế đã được chọn trước đó, bỏ chọn ghế
               setSelectedChairs(prevSelectedChairs => prevSelectedChairs.filter(selectedChair => selectedChair !== chair.chair));
-              await deleteBookTicketDetailByCancelChairApi(chair.id, bookTicket.data.id, dispatch);
+              await deleteBookTicketDetailByCancelChairApi(chair?.id, bookTicket.data.id, dispatch);
             } else {
               // Ghế chưa được chọn, thêm ghế vào danh sách các ghế đã chọn
-              setSelectedChairs(prevSelectedChairs => [...prevSelectedChairs, chair.chair]);
+              setSelectedChairs(prevSelectedChairs => [...prevSelectedChairs, chair?.chair]);
               await createBookTicketDetailApi(newBookTicketDetail, dispatch)
             }
         }
         
     }
-    
 
     // thay đổi màu khi chọn ghế
     useEffect(() => {
@@ -93,7 +91,15 @@ const ChairStatus = (props) => {
             item.classList.remove('btnSelected');
           }
         });
-      }, [selectedChairs]);
+      }, [selectedChairs, bookTicket]);
+
+    // xóa các ghế đã chọn khi thoát màn hình chairstatus
+    useEffect(() => {
+        const setChariStatus = async () => {
+            await deleteBookTicketDetailByStateApi(bookTicket?.data.id, hourTime.id, dispatch)
+        }
+        setChariStatus();
+    }, [!openChairStatus])
 
     //   tự động set lại các ghế chưa thanh toán sau 2 phút
     useEffect(() => {
@@ -151,18 +157,17 @@ const ChairStatus = (props) => {
     const [isOpenCombo, setIsOpenCombo] = useState(false);
     // mua vé
     const handleBuyTicket = () => {
-        setIsOpenCombo(true);
-        // if(selectedChairs.length === 0){
-        //     toast.info(
-        //         "Vui lòng chọn ít nhất 1 ghế!",
-        //         {
-        //           position: toast.POSITION.TOP_RIGHT,
-        //           autoClose: 2000,
-        //         }      
-        //       );  
-        // }else{
-        //     setIsOpenCombo(true);
-        // }
+        if(selectedChairs.length === 0){
+            toast.info(
+                "Vui lòng chọn ít nhất 1 ghế!",
+                {
+                  position: toast.POSITION.TOP_RIGHT,
+                  autoClose: 2000,
+                }      
+              );  
+        }else{
+            setIsOpenCombo(true);
+        }
     }
 
     // =========== Combo ==========
@@ -205,7 +210,7 @@ const ChairStatus = (props) => {
     //  tính tổng tiền combo
      const [totalCombo, setTotalCombo] = useState(0);
      useEffect(() => {
-        setTotalCombo(numCombo * (dataNumCombo?.price));
+        setTotalCombo(dataNumCombo ? numCombo * (dataNumCombo?.price) : 0);
      }, [numCombo])
 
     // format VNĐ combo
@@ -220,8 +225,92 @@ const ChairStatus = (props) => {
         setIsOpenTicketDetail(true);
     }
 
+    // Tính tổng tiền tạm tính frontend
+    const [totalPrice, setTotalPrice] = useState(0);
+    useEffect(() => {
+        setTotalPrice(totalTicket + totalCombo);
+    }, [totalTicket, totalCombo]) 
+
+    // format VNĐ combo
+    const formattedTotalPrice = new Intl.NumberFormat("vi-VN", {
+        style: "currency",
+        currency: "VND",
+    }).format(totalPrice);
+
+    // biến lưu trữ điểm thưởng quy đổi của khách
+    const [point, setPoint] = useState(0);
+
+    // phương thức thanh toán
+    const [typePayment, setTypePayment] = useState(3); // 1: Momo, 2: Vnpay, 3: Moveek
+
+    // Xác nhậm đặt vé
+    const [isOpenBookTicket, setIsOpenBookTicket] = useState(false);
+
+    useEffect(() => {
+      if(error){
+        toast.error(
+            "Đặt vé thất bại! Vui lòng đặt vé lại",
+            {
+              position: toast.POSITION.TOP_RIGHT,
+              autoClose: 2000,
+            }      
+        );
+        // cancelErrorBookTicket(false);
+        setOpenChairStatus(false)
+        setIsOpenTicketDetail(false)
+        setIsOpenBookTicket(false);
+
+      }
+    }, [error])
+    const handleConfimrBookTicketLocal = async () => {
+        // cập nhật
+        const newBookTicket = {
+            UserId: parseInt(token?.Id),
+            PaymentId: typePayment,
+            ComboId: dataNumCombo?.id,
+            CountCombo: numCombo,
+            ShowTimeId: showTime.id,
+            HourTimeId: hourTime.id,
+            MoneyPoints: point
+        }
+        console.log(newBookTicket);
+        await updateBookTicketApi(bookTicket?.data.id, newBookTicket, dispatch);
+        toast.success(
+            "Bạn đã đặt vé thành công!",
+            {
+              position: toast.POSITION.TOP_RIGHT,
+              autoClose: 2000,
+            }      
+        );
+        var chairElements = document.querySelectorAll('.chairstatus-chair');
+        chairElements.forEach(item => {
+          const chair = item.textContent;
+          if (selectedChairs.includes(chair)) {
+            item.classList.add('btnSelectedBuy');
+            setSelectedChairs([]);
+            }
+        });
+        setIsOpenTicketDetail(false)
+        setIsOpenBookTicket(true);
+    }
+
+    useEffect(() => {
+        if(isOpenBookTicket){
+            const interval = setInterval(async () => {
+                setIsOpenBookTicket(false);
+                setIsOpenTicketDetail(false)
+
+              }, 5000); // 2 phút = 2 * 60 * 1000 miligiây
+              return () => {
+                  // Xóa interval khi component bị unmount hoặc effect bị clean up
+                  clearInterval(interval);
+            };          
+        }
+    }, [isOpenBookTicket])
+
   return (
    <>
+
         {/* open chair status  */}
         <div className="chairstatus" onClick={() => setOpenChairStatus(false)}>
             <div className="chairstatus-2" onClick={(e) => handlePropagation(e)}>
@@ -383,6 +472,223 @@ const ChairStatus = (props) => {
                             </div>
                         </div>
         )}
+
+        {/* open form ticket detail */}
+        {isOpenTicketDetail && (
+            <div className="ticketdetail" onClick={() => setIsOpenTicketDetail(false)}>
+                <div className="ticketdetail-2" onClick={(e) => handlePropagation(e)}>
+                    <div className="ticketdetail-left">
+                        <div className="ticketdetail-left-namemovie">
+                            <p>{showTime.stamp}</p>
+                            <h1>{showTime.name}</h1>
+                        </div>
+                        <div className="ticketdetail-left-date">
+                            <div className="ticketdetail-left-hourtime">
+                                <p>Thời gian</p>
+                                <p>{hourTime.time} ~ {hourTime.endTime}</p>
+                            </div>
+                            <div className="ticketdetail-left-datetime">
+                                <p>Ngày chiếu</p>
+                                <p>{formattedDate}</p>
+                            </div>
+                        </div>
+                        <div className="ticketdetail-left-cinema">
+                            <p>Rạp</p>
+                            <p>{showTime.cinemaName}</p>
+                            <p>{showTime.locationDetail}</p>
+                        </div>
+                        <div className="ticketdetail-left-cinemaroom">
+                            <div className="ticketdetail-left-room">
+                                <p>Phòng chiếu</p>
+                                <p>{hourTime.cinemaRoom}</p>
+                            </div>
+                            <div className="ticketdetail-left-format">
+                                <p>Định dạng</p>
+                                <p>2D Lồng tiếng</p>
+                            </div>
+                        </div>
+                        <div className="ticketdetail-left-chairinfo">
+                            <p>Ghế</p>
+                            <div className="ticketdetail-left-chair">
+                                <p>
+                                {
+                                    selectedChairs.map((chair,index) => (
+                                        <>
+                                            {index === selectedChairs.length - 1 ? chair : chair + ", "}
+                                        </>
+                                    ))
+                                }
+                                </p>
+                                <h2>{formattedAmount}</h2>
+                            </div>
+                        </div>
+                        <div className="ticketdetail-left-comboinfo">
+                            <p>Bắp - nước</p>
+                            <div className="ticketdetail-left-combo">
+                                <p>{numCombo !== 0 ? (numCombo + " x " + dataNumCombo?.name) : ""}</p>
+                                <h2>{formattedAmountCombo}</h2>
+                            </div>     
+                        </div>
+                        <div className="ticketdetail-left-totaltemp">
+                            <h2>Tạm tính</h2>
+                            <h2>{formattedTotalPrice}</h2>
+                        </div>
+                        <div className="ticketdetail-left-pointinfo">
+                            <p>Bạn có thể đổi điểm tại đây</p>
+                            <input onChange={(e) => setPoint(e.target.value)} type="text" placeholder="Vui lòng nhập điểm thưởng (nếu có) !" />
+                        </div>
+                    </div>
+                    <div className="ticketdetail-right">
+                        <div className="ticketdetail-right-exit">
+                            <CloseIcon onClick={() => setIsOpenTicketDetail(false)} />
+                        </div>
+                        <div className="ticketdetail-right-payment">
+                            <div className="ticketdetail-right-momo">
+                                {/* <input type="radio" /> */}
+                                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJI
+                                AAAAkFBMVEWtAGz///+rAGepAGOoAGHGap2rAGjTjrPeqsbfrsju2OKnAF7AU5CoAGK
+                                nAF2tAGr79Pj57/X++v3WlrjaocDits326PDz3+rKdqOzInfFZJnCXJTIbp/04u
+                                y6QYXNgKnoxtjszt63NX/r0t61KHrmv9TRh66+TYzbpMG5OoLWmbjBWJKxFHPQha3
+                                Vk7i9R4noJkqkAAAJOUlEQVR4nO2da3eqOhCGIYloGzFeKt6qeMFaW3f9///uQNUWzQQB
+                                M2zdZ54vXasBzEvuyczgOARBEARBEARBEARBEARBEARBEARBEARBEARBEMT/BsUY94XwOfP
+                                0NI/xODFOY6rwc73Dc5MHF77ZHh4XUe3jab5azRu9yUjyVF4Ul6NJr5GkPX3UIsH1N2CECb
+                                4cfzTWq9Vq3eiNI99n9jOfJx9+86njpggaM8FOeZy9B+m0Tr+ZM5ue2IXzdvpet70eOqLAG7ID
+                                E/UzCQcGQxnrYHI40NOCeg6NrDVe6LfGzCetSgtSybALZsQNxlKOO3BaNxTZbYqJ0HBr8uShrK
+                                4cWQSU0Yn12pw2iLIKQkyAapFi2hQVCRSvmRnJpGbMJFMZr+ZIH+iyEZC98gJdtyfhp/obQ7
+                                0/oz3j+ALFyy0CXfcFlCjfct4+RK+p/M9tAl33DSgG+Z77dlMlsAVr3irQdZtad9N6Kn
+                                A7skTVvp6Fa7QvH1qw4n9hVlTRv11g3CWeZ5GHBe9/xRv81dKGQNddpkd+b1/4/
+                                ghtNi7mdhTO04XIi1f8AGvMUCM7Al1391sIpSr+u4+jkN001qfp/bQkVbyOJix
+                                x6qnMmI4WY/BTTUW5Zy5whowd/GuBeUHgdgyT6d3xkV7NeGs7GATmJtrEmKF
+                                64Gjfc6TcNeBsPO2kdMCqfcqgqVqswohJIdnyzzN8wQJjUGR14JcmyS+pFjitf
+                                GslrUVMgKT6oSGqGaxvJo97O4rJDfwSMEYMBkw95sf20AKyMWgd0iSwLHo5KPTBjj
+                                RsnY2XLejNuu8IIwYH6uLwtDPzAag45oEN9bSnQxqHlkzNy6FAjIGrOhUprB3bEwfe
+                                c/2kHuhNDgrVJ5D1Tz3rPtQfzexXU1DhSUUphdAT61AXAs3Ne/Znp/YVAoPhFB7ohD
+                                4iIfSmWQrL1VJHb4YTuGSAttx9AIXAUqXTMv24PviPrDdE67XU0/tI4xjA9XGlef8K
+                                gZsmpskYUE3tL4TtK9QndMaZClCj3+5fIdfGgK751/W16Uc1Cj27Cs1NS1/YVKTwpl
+                                qqT/V2ph8H9hfsD/n2FX5p/zdOxdRGuzZ8AIX6NqIx18DbMPa796PQ08tlbpqoyJV2
+                                rf2pt/15KbB3Z/htaJvPtj4Mhb4+n36B9wmBPcfA/mYUgkJghxmcbXrAZnvf/hLYvk
+                                LorgFUND6wZTe03pUiKAQ30de6RLEArjMOnfekEN4Pnl+YFzEGCcTYTkRQCG5QusEs
+                                ZVii5AbccUaopBgKHQVlPq6pM8mZ53mMyyZ83tXFOH7CUMhN59tB/23cHNf7phODj0
+                                dRaDoLuQqCPiSFfn4rjDRfKGekKAodVsb2AekQGEkhdHBzjQ2O9RfCfmmCLH7M/Y5k
+                                b4Kk0BHTggKfTZuqmArL19J4TNwVa4odNFsTrDIEVw5muiM0E0ysMoyv2OYxvTwKjP
+                                BsTPEUOmyZt6IGO0QjWuv7pSk8x2CRcMFCYbpfoLXDBCXzGCh+4VpeItbSBH92bdR4
+                                XiIZe1Wk0PFEmNUaO8Mrzgz3rzBZzf8xrZaCkOO7lOArTJxmmn29IDv9TSUuM9Bq9f
+                                XUl+qb7u7XSSHgn2HeCvR8tu/NO6cBshvM6zPOq3FgU8vmJZ+jU2KkpTWjU9pIT9tmZVk
+                                xXzrRbNPczCIl/eLOfaVRyvvm+CfhN1FLSjkOakk5nArVAQwdBEEQROVkdepxgle6w7+HwU
+                                IxLpxou99vR0pcThsZl2qUpEWOKOhuHo/4Qo2Ws/1sGT+4yhH/HCZ24To4zq660/7QET9CPOE
+                                M+9P2aeK1Dncir0iP+9v6+scPIb75bSkqmrWdwXiorcoXtYMOJmuLy7TnfGsDJjdPwMz7aVat
+                                s3qyzPkC946SNZwSQ3AJ1P1i13IZvzaTO/d0WMHq6RdhcrmPc7LdGv18OuPMvWrTqzkSvKKvg
+                                H9zUtrPsi/NmfTNr+bIKqrAkzvG22UHBsjEuBmoJOCxoVFHdnM+CBzd5Archjd0laNbdUHM8YO
+                                5KOdGX+e2A+SRRVktMA3qjvA3/IYqesyj3ieyZf5d/TbescU3Npy5+5c9qhcVub29w6yoDPKxKsz4v
+                                BSLVvwAU6GwEHAgLoXzQizsKLvCOiE1mTAVp54uRFkkZMSBF7SoCjxvj3eFTiqHpSwV9ki9DeDFU5Lx
+                                bw5ZmbcWIBWifz0KUE7WP4dIfrlwN3Ukgxor/UxC+6chlrT6ynA9uQG1BTP7Xns19hWN19o7OJifYiJA
+                                pz3fdPr12qRmttxD8CCNmyEUAWvBOWO+Ax5uTh2fMc4XQNKPhzSc//m+FT/W85jf+oRuR/GvhP2124c1m
+                                3KgXBwmHwqwyD8VAQP9+IN9aiXoyU+wcaBY0AJmhL1ji4dmc6fZGQeiKrxnWEEvLq2gPWjd8RhW0KAl+
+                                1xbAyq5AK6zLxDDGwGopAOobKAVzUN4I0AeJaAXqQd04w/hUQL0QYboQUA7N3ju35XCAu5aClhCWheIo
+                                PCf984r5GGpDzkP4GEJ5NpYLkCAo0fwkv3nPZ0fylu9lPWlHpYpI+LAYyr856NGADd93m3kj1JlWCh6i
+                                77Kth+Uzv6Ir882A9NWqP+QEXjAKEpwwQAWnFVFUbrJVh9YAIOu3PGk7UEjYYHRzKDFBRTNzP5ggVBLP
+                                Wi/Ww8V7XBoK3r/CBHpHAZtNW4u+1MfehGVRRW8TSEcGXJ4ERkS3JBrPIZCQ4zdxTYV3XMP+wthRPfE
+                                8HsyRWhdDEdcCsFHocGCASVCK4a/BZR2pBM8Z0TZNU7v7k1h2ejLOJGSURQCkZTykOmvcV8Ky1l3NHBOSJH
+                                8nkqEHMCKOo+ksEQ9XSId42P5rvlFP3uCcbCGqtCRpoNgmB6erQma/2GrSG8Df4rnzhUWKcUPRBNTTB9SkdfaK
+                                sT8yAyql6zfzPVFqz2qHTSuHzBzrn/iZe3h2utjezpneAB8E0ywv9eFGlPh+0JhdFaPlxoh/tcBK/BWZ+IVXg8uxrn
+                                div6GQsCWyuSPH2scvS3OO53uPNxV85VOVh88XzCdHFcxbDjV0k6TKzXR0gYZZ3+KCb59Tb7g+vz9mdalX533GhMaKiP
+                                tR4TKSINR3x/aFeU+tUsQBEEQBEEQBEEQBEEQBEEQBEEQBEEQBEEQBEEQBIHHf+GPpmMiew23AAAAAElFTkSuQmCC" alt="" />
+                                <button onClick={() => setTypePayment(1)}>Thanh toán qua ví Momo</button>
+                            </div>
+
+                            <div className="ticketdetail-right-vnpay">
+                                <img alt="" src="https://itviec.com/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBd2w2SHc9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--86c9a5822c522ee441f5a6e55a9c9cfdc61b09bc/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJY0c1bkJqb0dSVlE2RkhKbGMybDZaVjkwYjE5c2FXMXBkRnNIYVFJc0FXa0NMQUU9IiwiZXhwIjpudWxsLCJwdXIiOiJ2YXJpYXRpb24ifX0=--15c3f2f3e11927673ae52b71712c1f66a7a1b7bd/logo%20VNPAY-02.png"/>
+                                <button onClick={() => setTypePayment(2)}>Thanh toán qua ví VNPAY</button>
+                            </div>
+                            <div className="ticketdetail-right-local">
+                                <button onClick={() => handleConfimrBookTicketLocal()}>Thanh toán mặc định</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )}
+
+        {isOpenBookTicket && (
+            <div className="bookticket" onClick={() => setIsOpenTicketDetail(false)}>
+             <div className="bookticket-2" onClick={(e) => handlePropagation(e)}>
+                 <div className="bookticket-left">
+                    <div className="bookticket-left-header">
+                        <p>Chúc mừng bạn! </p>
+                        <p>Bạn đã đặt vé thành công</p>
+                    </div>
+                     <div className="bookticket-left-namemovie">
+                         <p>{showTime.stamp}</p>
+                         <h1>{showTime.name}</h1>
+                     </div>
+                     <div className="bookticket-left-code">
+                        <h2>Mã vé: {bookTicket?.data.id}</h2>
+                     </div>
+                     <div className="bookticket-left-date">
+                         <div className="bookticket-left-hourtime">
+                             <p>Thời gian</p>
+                             <p>{hourTime.time} ~ {hourTime.endTime}</p>
+                         </div>
+                         <div className="bookticket-left-datetime">
+                             <p>Ngày chiếu</p>
+                             <p>{formattedDate}</p>
+                         </div>
+                     </div>
+                     <div className="bookticket-left-cinema">
+                         <p>Rạp</p>
+                         <p>{showTime.cinemaName}</p>
+                         <p>{showTime.locationDetail}</p>
+                     </div>
+                     <div className="bookticket-left-cinemaroom">
+                         <div className="bookticket-left-room">
+                             <p>Phòng chiếu</p>
+                             <p>{hourTime.cinemaRoom}</p>
+                         </div>
+                         <div className="bookticket-left-format">
+                             <p>Định dạng</p>
+                             <p>2D Lồng tiếng</p>
+                         </div>
+                     </div>
+                     <div className="bookticket-left-chairinfo">
+                         <p>Ghế</p>
+                         <div className="bookticket-left-chair">
+                             <p>
+                             {
+                                 selectedChairs.map((chair,index) => (
+                                     <>
+                                         {index === selectedChairs.length - 1 ? chair : chair + ", "}
+                                     </>
+                                 ))
+                             }
+                             </p>
+                             <h2>{formattedAmount}</h2>
+                         </div>
+                     </div>
+                     <div className="bookticket-left-comboinfo">
+                         <p>Bắp - nước</p>
+                         <div className="bookticket-left-combo">
+                             <p>{numCombo !== 0 ? (numCombo + " x " + dataNumCombo?.name) : ""}</p>
+                             <h2>{formattedAmountCombo}</h2>
+                         </div>     
+                     </div>
+                     <div className="bookticket-left-point">
+                         <h2>Điểm được quy đổi</h2>
+                         <h2>{formattedTotalPrice}</h2>
+                     </div>
+                     <div className="bookticket-left-totaltemp">
+                         <h2>Tạm tính</h2>
+                         <h2>{formattedTotalPrice}</h2>
+                     </div>
+                 </div>
+             </div>  
+            </div>
+        )}
+
+        {pending && (
+         <div className = "userinfo-loading">
+              <div className="lds-dual-ring"></div>
+         </div>
+       )}
         <ToastContainer />
    </>
   )

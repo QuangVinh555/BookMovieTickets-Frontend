@@ -18,17 +18,17 @@ export const BookTicketDetailSlice = createSlice({
         createBookTicketDetail: (state, action) => {
             state.pending = false;
             state.bookTicketDetail = action.payload;
-            state.error = true;
+            state.error = false;
         },   
         deleteBookTicketDetailByCancelChair: (state, action) => {
             state.pending = false;
             state.bookTicketDetail = action.payload;
-            state.error = true;
+            state.error = false;
         },   
         deleteBookTicketDetailByState: (state, action) => {
             state.pending = false;
             state.bookTicketDetail = action.payload;
-            state.error = true;
+            state.error = false;
         },   
     }
 });

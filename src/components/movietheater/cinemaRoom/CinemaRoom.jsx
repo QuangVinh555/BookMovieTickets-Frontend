@@ -653,7 +653,7 @@ const CinemaRoom = () => {
                     <input
                       type="text"
                       placeholder="VD: 80"
-                      value={numberEdit}
+                      value={numberEdit || 0}
                       onChange={(e) => setNumberEdit(e.target.value)}
                     />
                   </div>

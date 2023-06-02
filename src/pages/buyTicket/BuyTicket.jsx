@@ -235,12 +235,13 @@ const BuyTicket = () => {
     });
   }, [dateShowTime]);
 
+
   // get all showtime by cinemaNameId and Date
   useEffect(() => {
     const getAllShowtime = async (cinemaNameId, dateShowTime) => {
       await getAllShowTimeByCinemaNameIdAndDateApi(
         cinemaNameId,
-        dateShowTime || "2023-05-29",
+        dateShowTime,
         dispatch
       );
     };
@@ -274,18 +275,17 @@ const BuyTicket = () => {
       );  
     }else{
    
-      setOpenChairStatus(true);
       // tạo vé 
       const newBookTicket = {
-        UserId: token.Id,
+        UserId: parseInt(token?.Id),
         ShowTimeId: _showTime?.id,
         HourTimeId: _hourTime?.id
       }
       await createBookTicketApi(newBookTicket, dispatch);
+      setOpenChairStatus(true);
     }
 
   }
-
      
   return (
     <div className="buyticket">
