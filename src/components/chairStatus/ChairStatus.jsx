@@ -12,11 +12,12 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
 import { getAllComboByDateNowApi } from '../../redux/combo/ComboApi';
 import CloseIcon from '@mui/icons-material/Close';
-import { updateBookTicketApi } from '../../redux/bookTicket/BookTicketApi';
+import { getBookTicketApi, updateBookTicketApi } from '../../redux/bookTicket/BookTicketApi';
 import { cancelErrorBookTicket } from '../../redux/bookTicket/BookTicketSlice';
+import { getUserPointByUserIdApi } from '../../redux/usePoint/UserPointApi';
 
 const ChairStatus = (props) => {
-    const {hourTime, openChairStatus, setOpenChairStatus, showTime, dateShowTime} = props; 
+    const {hourTime, openChairStatus, setOpenChairStatus, showTime, dateShowTime, userLoginGG} = props; 
   
     const dispatch = useDispatch();
     const listChairStatus = useSelector(state => state.chairStatus.listChairStatus);
@@ -25,13 +26,13 @@ const ChairStatus = (props) => {
     const token = useSelector(state => state.auth.token)
     const error = useSelector(state => state.bookTicket.error);
     const pending = useSelector(state => state.bookTicket.pending);
-
+    const userPoint = useSelector(state => state.userPoint.userPoint);
     let formattedDate = new Date(dateShowTime).toLocaleDateString('en-GB');
-
+    
     // get all chairStatus by HourTimeId
     useEffect(() => {
         const getAllChairStatusByCinemaRoom = async (hourTime) => {
-            await getAllChairStatusByCinemaRoomIdApi(hourTime.id, dispatch)
+            await getAllChairStatusByCinemaRoomIdApi(hourTime?.id, dispatch)
         }
         getAllChairStatusByCinemaRoom(hourTime);
     }, [hourTime])
@@ -49,7 +50,7 @@ const ChairStatus = (props) => {
     // chọn ghế
     const [dataChair, setDataChair] = useState();
     const [isLoadChair, setIsLoadChair] = useState(false);
-   console.log(dataChair);
+   
     // khi nào chọn ghế, thì các ghế được chọn sẽ được thêm vào mảng này
     const [selectedChairs, setSelectedChairs] = useState([]);
     const handleSelectedChair = async(event,chair) => {
@@ -62,7 +63,7 @@ const ChairStatus = (props) => {
                 BookTicketId: bookTicket?.data.id,
                 ChairId: chair?.chairId,
                 TicketPrice: showTime.ticketPrice,
-                HourTimeId: hourTime.id,
+                HourTimeId: hourTime?.id,
             }
             setDataChair(chair);
             const index = selectedChairs.indexOf(chair.chair);
@@ -96,16 +97,16 @@ const ChairStatus = (props) => {
     // xóa các ghế đã chọn khi thoát màn hình chairstatus
     useEffect(() => {
         const setChariStatus = async () => {
-            await deleteBookTicketDetailByStateApi(bookTicket?.data.id, hourTime.id, dispatch)
+            await deleteBookTicketDetailByStateApi(bookTicket?.data?.id, hourTime?.id, dispatch)
         }
         setChariStatus();
-    }, [!openChairStatus])
+    }, [openChairStatus])
 
     //   tự động set lại các ghế chưa thanh toán sau 2 phút
     useEffect(() => {
         if(isLoadChair === true){
             const interval = setInterval(async () => {
-              await deleteBookTicketDetailByStateApi(bookTicket.data.id, hourTime.id, dispatch)
+              await deleteBookTicketDetailByStateApi(bookTicket.data?.id, hourTime?.id, dispatch)
               setOpenChairStatus(false)
               setIsLoadChair(false);
               toast.info(
@@ -125,7 +126,7 @@ const ChairStatus = (props) => {
       
     //   hủy ghế chỗ thông tin chỗ ngồi
       const handleCancelChair = async () => {
-        await deleteBookTicketDetailByStateApi(bookTicket?.data.id, hourTime.id, dispatch)
+        await deleteBookTicketDetailByStateApi(bookTicket?.data.id, hourTime?.id, dispatch)
         var chairElements = document.querySelectorAll('.chairstatus-chair');
         chairElements.forEach(item => {
           const chair = item.textContent;
@@ -202,7 +203,8 @@ const ChairStatus = (props) => {
         setDataNumCombo(combo)
         combos.forEach(item => {
             if(item.data.id === combo.id) {
-                setNumCombo(numCombo + 1);
+                // setNumCombo(numCombo + 1);
+                setNumCombo(numCombo >= combo.count ? combo.count : numCombo + 1);
             }
         })
      }
@@ -239,42 +241,61 @@ const ChairStatus = (props) => {
 
     // biến lưu trữ điểm thưởng quy đổi của khách
     const [point, setPoint] = useState(0);
+    useEffect(() => {
+        if(isOpenTicketDetail){
+            const getUserPointByUserId = async (userId) => {
+                await getUserPointByUserIdApi(userId, dispatch);
+            }
+            getUserPointByUserId(token?.id || userLoginGG?.id)
 
+        }
+    }, [isOpenTicketDetail])
+  
+    const handleChangeUserPoint = (e) => {
+        if(e.target.value > userPoint?.data?.rewardPoints){
+            toast.error(
+                "Số điểm của bạn không đủ!",
+                {
+                  position: toast.POSITION.TOP_RIGHT,
+                  autoClose: 2000,
+                }      
+            );  
+            e.target.value = "";
+            setPoint(0)
+
+        }else if(e.target.value === 100){
+            toast.error(
+                "Bạn chỉ được tối đa dùng 100 điểm để quy đổi!",
+                {
+                  position: toast.POSITION.TOP_RIGHT,
+                  autoClose: 2000,
+                }      
+            );  
+        }
+        else{
+            setPoint(e.target.value)
+        }
+    }
+    console.log(point)
     // phương thức thanh toán
     const [typePayment, setTypePayment] = useState(3); // 1: Momo, 2: Vnpay, 3: Moveek
 
     // Xác nhậm đặt vé
     const [isOpenBookTicket, setIsOpenBookTicket] = useState(false);
 
-    useEffect(() => {
-      if(error){
-        toast.error(
-            "Đặt vé thất bại! Vui lòng đặt vé lại",
-            {
-              position: toast.POSITION.TOP_RIGHT,
-              autoClose: 2000,
-            }      
-        );
-        // cancelErrorBookTicket(false);
-        setOpenChairStatus(false)
-        setIsOpenTicketDetail(false)
-        setIsOpenBookTicket(false);
-
-      }
-    }, [error])
     const handleConfimrBookTicketLocal = async () => {
         // cập nhật
         const newBookTicket = {
-            UserId: parseInt(token?.Id),
+            UserId: parseInt(token?.Id) || userLoginGG?.id,
             PaymentId: typePayment,
             ComboId: dataNumCombo?.id,
             CountCombo: numCombo,
-            ShowTimeId: showTime.id,
-            HourTimeId: hourTime.id,
-            MoneyPoints: point
+            ShowTimeId: showTime?.id,
+            HourTimeId: hourTime?.id,
+            MoneyPoints: parseInt(point)
         }
-        console.log(newBookTicket);
-        await updateBookTicketApi(bookTicket?.data.id, newBookTicket, dispatch);
+
+        await updateBookTicketApi(bookTicket?.data?.id, newBookTicket, dispatch);
         toast.success(
             "Bạn đã đặt vé thành công!",
             {
@@ -287,7 +308,7 @@ const ChairStatus = (props) => {
           const chair = item.textContent;
           if (selectedChairs.includes(chair)) {
             item.classList.add('btnSelectedBuy');
-            setSelectedChairs([]);
+            // setSelectedChairs([]);
             }
         });
         setIsOpenTicketDetail(false)
@@ -299,6 +320,7 @@ const ChairStatus = (props) => {
             const interval = setInterval(async () => {
                 setIsOpenBookTicket(false);
                 setIsOpenTicketDetail(false)
+                setIsOpenCombo(false);
 
               }, 5000); // 2 phút = 2 * 60 * 1000 miligiây
               return () => {
@@ -307,6 +329,25 @@ const ChairStatus = (props) => {
             };          
         }
     }, [isOpenBookTicket])
+
+    useEffect(() => {
+        const getBookTicketById = async (bookTicketId) => {
+            await getBookTicketApi(bookTicketId, dispatch)
+        }
+        getBookTicketById(bookTicket?.data?.id);
+    }, [isOpenBookTicket])
+
+     // format VNĐ tiền điểm thưởng
+     const formattedMoneyPoint = new Intl.NumberFormat("vi-VN", {
+        style: "currency",
+        currency: "VND",
+    }).format(bookTicket.data?.rewardPoints_Used);
+    console.log(formattedMoneyPoint)
+      // format VNĐ tổng tiền vé
+      const formattedTotal = new Intl.NumberFormat("vi-VN", {
+        style: "currency",
+        currency: "VND",
+    }).format(bookTicket?.data?.total);
 
   return (
    <>
@@ -326,7 +367,7 @@ const ChairStatus = (props) => {
                     <div className="chairstatus-list">
                         {
                             listChairStatus.map(chairStatus => (
-                                <div key={chairStatus.data.id} className="chairstatus-item">
+                                <div key={chairStatus.data?.id} className="chairstatus-item">
                                     <button
                                         onClick={(e) => handleSelectedChair(e,chairStatus.data)}
                                         className={`
@@ -449,7 +490,7 @@ const ChairStatus = (props) => {
                                                             />
                                                             <p>{combo.data.id === dataNumCombo?.id ?  numCombo : 0}</p>
                                                             <ControlPointIcon 
-                                                                className='combo-item-add' 
+                                                                className={`combo-item-add ${(numCombo >= combo.data.count) ? 'disabled' : 'active'}`}                                                             
                                                                 onClick={() => handleAddCombo(combo.data)}
                                                             />
                                                             <h3 className="combo-item-num">SL: {combo.data.count}</h3>
@@ -535,7 +576,7 @@ const ChairStatus = (props) => {
                         </div>
                         <div className="ticketdetail-left-pointinfo">
                             <p>Bạn có thể đổi điểm tại đây</p>
-                            <input onChange={(e) => setPoint(e.target.value)} type="text" placeholder="Vui lòng nhập điểm thưởng (nếu có) !" />
+                            <input onChange={(e) => handleChangeUserPoint(e)} type="text" placeholder="Vui lòng nhập điểm thưởng (nếu có) !" />
                         </div>
                     </div>
                     <div className="ticketdetail-right">
@@ -622,7 +663,7 @@ const ChairStatus = (props) => {
                          <h1>{showTime.name}</h1>
                      </div>
                      <div className="bookticket-left-code">
-                        <h2>Mã vé: {bookTicket?.data.id}</h2>
+                        <h2>Mã vé: {bookTicket?.data?.id}</h2>
                      </div>
                      <div className="bookticket-left-date">
                          <div className="bookticket-left-hourtime">
@@ -673,11 +714,11 @@ const ChairStatus = (props) => {
                      </div>
                      <div className="bookticket-left-point">
                          <h2>Điểm được quy đổi</h2>
-                         <h2>{formattedTotalPrice}</h2>
+                         <h2>{point ? `-${(formattedMoneyPoint)}` : ""}</h2>
                      </div>
                      <div className="bookticket-left-totaltemp">
-                         <h2>Tạm tính</h2>
-                         <h2>{formattedTotalPrice}</h2>
+                         <h2>Tổng cộng</h2>
+                         <h2>{formattedTotal}</h2>
                      </div>
                  </div>
              </div>  

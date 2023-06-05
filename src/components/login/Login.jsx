@@ -2,18 +2,23 @@ import React from 'react';
 import "./Login.scss";
 import Logo from "../../assets/image/logo.png";
 import { useDispatch, useSelector } from 'react-redux';
-import { updateAuth } from '../../redux/auth/AuthSlice';
+import { getToken, updateAuth } from '../../redux/auth/AuthSlice';
 import { useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import { loginApi } from '../../redux/auth/AuthApi';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import GoogleLogin from '../google/GoogleLogin';
+import { loginGoogleSuccess } from '../../redux/gooleLogin/GooleLoginSlice';
+import { LOCAL_STORAGE_TOKEN_NAME } from '../../localStorage/localStorage';
+import { loginGooleApi } from '../../redux/gooleLogin/GoogleLoginApi';
 
 const Login = () => {
     const dispatch = useDispatch();
     const pending = useSelector(state => state.auth.pending)
     const token = useSelector(state => state.auth.token);
-
+    const tokenGG = useSelector(state => state.googleLogin.tokenGG);
+    const googleLogin = useSelector(state => state.googleLogin.googleLogin);
     // open form register
     const hanldeIsOpenFormRegister = () => {
         dispatch(updateAuth(2))
@@ -57,10 +62,31 @@ const Login = () => {
     }
     const navigate = useNavigate();
     useEffect(() => {
-        if(token.RoleId === "2"){
+        if(token?.RoleId === "2"){
             navigate("/dashboard");
         }
     }, [token])
+
+    // đăng nhập bằng google
+
+    useEffect(() => {
+        if(tokenGG){
+            const loginGoogle = async () => {
+                await loginGooleApi(tokenGG, dispatch);          
+                localStorage.setItem(LOCAL_STORAGE_TOKEN_NAME, tokenGG.token);     
+                dispatch(updateAuth(0));
+            }
+            loginGoogle();
+        }
+        
+    }, [tokenGG,googleLogin]);
+
+    useEffect(() => {
+        if(googleLogin){
+            dispatch(getToken(googleLogin)) 
+        }
+    }, [googleLogin]);
+
   return (
     <div className="login" onClick={() => dispatch(updateAuth(0))}>
         {
@@ -98,7 +124,8 @@ const Login = () => {
                     <div className="login-button">
                         <button type='submit' className='login-success'>Đăng nhập</button>
                         <p>hoặc</p>
-                        <button className='login-google'>Đăng nhập bằng Google</button>
+                        {/* <button className='login-google'>Đăng nhập bằng Google</button> */}
+                        <GoogleLogin />
                         <p>Chưa có tài khoản? <b onClick={() => hanldeIsOpenFormRegister()}>Đăng ký ngay!</b></p>
                     </div>
                 </form>

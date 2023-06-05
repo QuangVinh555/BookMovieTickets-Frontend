@@ -16,6 +16,8 @@ import ChairStatusReducer from "./chairStatus/ChairStatusSlice";
 import BookTicketReducer from "./bookTicket/BookTicketSlice";
 import BookTicketDetailReducer from "./bookTicketDetail/BookTicketDetailSlice";
 import ComboReducer from "./combo/ComboSlice";
+import UserPointReducer from "./usePoint/UserPointSlice";
+import GoogleLoginReducer from "./gooleLogin/GooleLoginSlice";
 export default configureStore({
     reducer: {
         global: GlobalReducer,
@@ -35,5 +37,7 @@ export default configureStore({
         bookTicket: BookTicketReducer,
         bookTicketDetail: BookTicketDetailReducer,
         combo: ComboReducer,
+        userPoint: UserPointReducer,
+        googleLogin: GoogleLoginReducer,
     }  
 });

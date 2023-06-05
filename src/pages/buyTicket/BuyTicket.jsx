@@ -30,6 +30,7 @@ import ChairStatus from "../../components/chairStatus/ChairStatus";
 import { createBookTicketApi } from "../../redux/bookTicket/BookTicketApi";
 import { updateAuth } from "../../redux/auth/AuthSlice";
 import { ToastContainer, toast } from "react-toastify";
+import { getIdUserByLoginGGApi } from "../../redux/user/UserApi";
 
 
 const BuyTicket = () => {
@@ -45,9 +46,20 @@ const BuyTicket = () => {
   const movies = useSelector((state) => state.movie.movies);
   const hourTimes = useSelector((state) => state.hourTime.hourTimes);
   const token = useSelector(state => state.auth.token)
+  const tokenGG = useSelector(state => state.googleLogin.tokenGG)
 
+  // lấy ra id user khi đăng nhập bằng gg để tạo vé
+  const userLoginGG = useSelector(state => state.user.user);
+  
+  useEffect(() =>{
+    if(tokenGG || token){
+      const getIdUserByLoginGG = async () => {
+        await getIdUserByLoginGGApi(token?.email, dispatch);
+      }
+      getIdUserByLoginGG();
+    }
+  },[tokenGG, token])
 
- 
   // Tạo một đối tượng Date mới
   var date = new Date();
   // Lấy thông tin về ngày, tháng, năm
@@ -132,10 +144,10 @@ const BuyTicket = () => {
   const handleClickCinemaType = (cinemaType) => {
     if (flag === 1 || flag === 3) {
       setFlag(3);
-      setSearchByCinemaTypeId(cinemaType.id);
+      setSearchByCinemaTypeId(cinemaType?.id);
     } else {
       setFlag(2);
-      setSearchByCinemaTypeId(cinemaType.id);
+      setSearchByCinemaTypeId(cinemaType?.id);
     }
   };
 
@@ -256,7 +268,7 @@ const BuyTicket = () => {
     };
     getAllHourTimes();
   }, [showTimes]);
-
+  
   const [openChairStatus, setOpenChairStatus] = useState(false);
   const [dataHourTime, setDataHourTime] = useState();
   const [dataShowTime, setDataShowTime] = useState();
@@ -274,18 +286,20 @@ const BuyTicket = () => {
         }      
       );  
     }else{
-   
+  
       // tạo vé 
       const newBookTicket = {
-        UserId: parseInt(token?.Id),
+        UserId: parseInt(token?.Id) || userLoginGG?.data?.id,
         ShowTimeId: _showTime?.id,
         HourTimeId: _hourTime?.id
       }
       await createBookTicketApi(newBookTicket, dispatch);
       setOpenChairStatus(true);
+      console.log(newBookTicket)
     }
-
+    
   }
+
      
   return (
     <div className="buyticket">
@@ -353,7 +367,7 @@ const BuyTicket = () => {
                 Choose here
               </option>
               {locations.map((item) => (
-                <option key={item.data.id} value={item.data.id}>
+                <option key={item.data?.id} value={item.data?.id}>
                   {item.data.province}
                 </option>
               ))}
@@ -389,7 +403,7 @@ const BuyTicket = () => {
               {flag === 1 || flag === 2 || flag === 3
                 ? cinemaNamesByConditions.map((item) => (
                     <div
-                      key={item.data.id}
+                      key={item.data?.id}
                       className="cinemaroom-left-info"
                       onClick={() => handleClickCinemaName(item.data)}
                     >
@@ -399,7 +413,7 @@ const BuyTicket = () => {
                   ))
                 : cinemaNames.map((item) => (
                     <div
-                      key={item.data.id}
+                      key={item.data?.id}
                       className="cinemaroom-left-info"
                       onClick={() => handleClickCinemaName(item.data)}
                     >
@@ -443,7 +457,7 @@ const BuyTicket = () => {
                 :
                 showTimes.map((showTime) => (
                   <div
-                    key={showTime.data.id}
+                    key={showTime.data?.id}
                     className="buyticket-showtime-item"
                   >
                     <img src={showTime.data.mainSlide} alt="" />
@@ -468,9 +482,9 @@ const BuyTicket = () => {
                       <div className="buyticket-showtime-hourtime-list">
                         {
                             hourTimes.map(hourTime => {
-                                if(hourTime.data.showTimeId === showTime.data.id){
+                                if(hourTime.data.showTimeId === showTime.data?.id){
                                     return (
-                                        <button key={hourTime.data.id} onClick={() => handleGetChairByHourTime(hourTime.data, showTime.data)}>{hourTime.data.time} ~ {hourTime.data.endTime}</button>
+                                        <button key={hourTime.data?.id} onClick={() => handleGetChairByHourTime(hourTime.data, showTime.data)}>{hourTime.data.time} ~ {hourTime.data.endTime}</button>
                                         )
                                     }
                             })
@@ -492,6 +506,7 @@ const BuyTicket = () => {
             setOpenChairStatus = {setOpenChairStatus} 
             showTime = {dataShowTime}
             dateShowTime = {dateShowTime}
+            userLoginGG = {userLoginGG.data}
           />
         )
       }

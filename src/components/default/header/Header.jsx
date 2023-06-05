@@ -8,6 +8,7 @@ import { getToken, updateAuth } from '../../../redux/auth/AuthSlice';
 import { useState } from 'react';
 import { LOCAL_STORAGE_TOKEN_NAME } from '../../../localStorage/localStorage';
 import { ToastContainer, toast } from 'react-toastify';
+import { loginGoogleSuccess, updateTokenGG } from '../../../redux/gooleLogin/GooleLoginSlice';
 
 const Header = () => {
     const listTitles = [
@@ -41,7 +42,7 @@ const Header = () => {
     }
 
     const token = useSelector(state => state.auth.token)
-
+ 
     const [openInfoUser, setOpenInfoUser] = useState(false);
     const handleInfoUser = () => {
       setOpenInfoUser(!openInfoUser);
@@ -58,6 +59,8 @@ const Header = () => {
         }      
       );  
       dispatch(getToken(""));
+      dispatch(updateTokenGG(""));
+      dispatch(loginGoogleSuccess(null));
       setOpenInfoUser(false);
       navigate("/")    
     }
@@ -87,10 +90,11 @@ const Header = () => {
               <li style={{display: 'flex', alignItems: 'center'}}>
                 <AccountCircleIcon className="header-user" />
                 {
-                  token === "" ? 
+                  token === "" || token === null ? 
                   <span onClick={() => handleLoginUser()}>Đăng nhập</span>
                   :
-                  <span onClick={() =>handleInfoUser()}>{token?.Username}</span>
+                  // <span onClick={() =>handleInfoUser()}>{token?.Username}</span>
+                  <span onClick={() =>handleInfoUser()}>{token?.name || token?.Username}</span>
                 }
               </li>
                 {
