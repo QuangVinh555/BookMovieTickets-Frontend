@@ -68,6 +68,10 @@ const Header = () => {
     const handleHome = () => {
       navigate("/");
     }
+
+    const handleMoveUserInfo = () => {
+      navigate("/taikhoan");
+    }
   return (
     <>
       <ToastContainer />
@@ -100,7 +104,7 @@ const Header = () => {
                 {
                   openInfoUser && (
                     <ul>
-                      <li>Thông tin tài khoản</li>
+                      <li onClick = {() => handleMoveUserInfo()}>Thông tin tài khoản</li>
                       <li onClick={() => handleLogOut()}>Đăng xuất</li>
                     </ul>
                   )
