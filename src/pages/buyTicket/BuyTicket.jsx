@@ -54,7 +54,7 @@ const BuyTicket = () => {
   useEffect(() =>{
     if(tokenGG || token){
       const getIdUserByLoginGG = async () => {
-        await getIdUserByLoginGGApi(token?.email, dispatch);
+        await getIdUserByLoginGGApi(token?.email || token?.Email, dispatch);
       }
       getIdUserByLoginGG();
     }

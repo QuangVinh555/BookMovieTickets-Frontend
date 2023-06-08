@@ -32,10 +32,15 @@ export const BookTicketSlice = createSlice({
             state.pending = false;
             state.bookTicket = action.payload;
             state.error = false;
+        },
+        getBookTicketByUserId: (state, action) => {
+            state.pending = false;
+            state.bookTickets = action.payload;
+            state.error = false;
         }
     }
 });
 
 export const {bookTicketStart, bookTicketError, createBookTicket, 
-    updateBookTicket, cancelErrorBookTicket, getBookTicketById} = BookTicketSlice.actions;
+    updateBookTicket, cancelErrorBookTicket, getBookTicketById, getBookTicketByUserId} = BookTicketSlice.actions;
 export default BookTicketSlice.reducer;

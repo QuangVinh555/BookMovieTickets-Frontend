@@ -9,6 +9,7 @@
             align-items: center;
             .personal-header-left{
                 flex: 1;
+                margin-top: 5px;
                 .personal-header-left-info{
                     position: relative;
                     .personal-header-left-info-big{
@@ -40,13 +41,14 @@
             .personal-header-right{
                 flex: 1;
                 margin-left: 20px;
-                border: 1px solid #ccc;
+                // border: 1px solid #ccc;
                 border-radius: 10px;
                 .personal-header-right-point{
                     padding: 108px 70px;
                     background-image: url("https://diadiemvietnam.vn/wp-content/uploads/2022/10/rap-chieu-phim-hai-duong.jpg");
                     background-size: cover;
                     border-radius: 10px;
+                    height: 305px;
                     color: var(--bs-white-color);
 
 
@@ -59,6 +61,7 @@
                             font-weight: bold;
                             z-index: 20;
                         }
+                        $progressValue: 20;
                         .personal-right-point-progress{
                             margin-left: 20px;
                             width: 100%;
@@ -66,21 +69,35 @@
                             background-color: #f2f2f2;
                             border-radius: 10px;
                             position: relative;
+                            
+                            &::after {
+                                content: "";
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                height: 100%;
+                                background-color: #D82D8B;
+                                border-top-left-radius: 10px;
+                                border-bottom-left-radius: 10px;
+                                width: var(--progress-value); // Sử dụng CSS Custom Property
+                                z-index: 1;
+                            }
                         }
 
                         .progress-bar__marker {
                             width: 1px;
                             height: 20px;
-                            background-color: #ce95b4;
+                            background-color: black;
                             border-radius: 50%;
                             position: absolute;
                             top: 50%;
                             transform: translateY(-50%);
+                            z-index: 2;
                           }
                           
                           
                           .progress-bar__marker:nth-child(1) {
-                            left: 33.3333%;
+                            left: 0;
                             p{
                                 font-size: 1.6rem;
                                 position: absolute;
@@ -90,11 +107,13 @@
                                 background-color: #D82D8B;
                                 border-radius: 10px;
                                 padding: 2px 5px;
+                                z-index: 2;
                             }
                           }
                           
                           .progress-bar__marker:nth-child(2) {
-                            left: 66.6667%;
+                            left: 50%;
+                            width: 2px;
                             p{
                                 font-size: 1.6rem;
                                 position: absolute;
@@ -104,6 +123,7 @@
                                 background-color: #D82D8B;
                                 border-radius: 10px;
                                 padding: 2px 5px;
+                                z-index: 2;
                             }
                           }
                           
@@ -116,6 +136,7 @@
                             position: absolute;
                             top: 50%;
                             transform: translateY(-50%);
+                            z-index: 2;
                             p{
                                 font-size: 1.6rem;
                                 position: absolute;
@@ -151,6 +172,18 @@
                             }
                         }
                     }
+                    .personal-right-point-rank{
+                        margin-top: 10px;
+                        display: flex;
+                        align-items: center;
+                        h2{
+                            font-size: 1.8rem;
+                        }
+                        h2:nth-child(2){
+                            margin-left: 10px;
+                            color: #D82D8B;
+                        }
+                    }
                 }
             }
         }
@@ -165,6 +198,30 @@
             border-bottom: 1px solid #ccc;
             h1{
 
+            }
+        }
+        ul{
+            list-style: none;
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+            background-color: #ce95b4;
+            height: 100%;
+            border-radius: 10px;
+            li{
+                font-size: 1.8rem;
+                margin: 0 8px;
+                cursor: pointer;
+                // color: var(--bs-white-color);
+
+                &:hover{
+                    opacity: 0.8;
+                }
+
+                &.active{
+                    background-color: rgba(255, 255, 255, 0.5);
+                    padding: 0 8px;
+                }
             }
         }
         table{
@@ -235,6 +292,16 @@
                     }
                 }
             }
+        }
+    }
+
+      // toast message
+      .Toastify{
+        font-size: 1.5rem;
+        
+        .Toastify__toast-container{
+            
+            margin-top: 50px;
         }
     }
 }
