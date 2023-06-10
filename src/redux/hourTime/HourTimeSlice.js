@@ -6,6 +6,7 @@ export const ShowTimeSlice = createSlice({
         error: false,
         hourTime: null,
         hourTimes: [],
+        hourTimeByShowTimes: []
     },
     reducers:{
         hourTimeStart: (state) => {
@@ -22,7 +23,7 @@ export const ShowTimeSlice = createSlice({
         },
         getAllHourTimeByShowTimeId: (state, action) => {
             state.pending = false;
-            state.hourTimes = action.payload;
+            state.hourTimeByShowTimes = action.payload;
             state.error = false;
         },
         getAllHourTimes: (state, action) => {

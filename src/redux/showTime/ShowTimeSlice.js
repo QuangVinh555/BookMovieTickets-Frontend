@@ -34,9 +34,15 @@ export const ShowTimeSlice = createSlice({
             state.pending = false;
             state.showTime = action.payload;
             state.error = false;
-        }
+        },
+        getAllShowTimeByMovieId: (state, action) => {
+            state.pending = false;
+            state.showTimes = action.payload;
+            state.error = false;
+        },
     }
 });
 
-export const {showTimeStart, showTimeError, getAllShowTimeByCinemaNameIdAndDate, createShowTime, updateShowTime, deleteShowTime} = ShowTimeSlice.actions;
+export const {showTimeStart, showTimeError, getAllShowTimeByCinemaNameIdAndDate, 
+    createShowTime, updateShowTime, deleteShowTime, getAllShowTimeByMovieId} = ShowTimeSlice.actions;
 export default ShowTimeSlice.reducer;

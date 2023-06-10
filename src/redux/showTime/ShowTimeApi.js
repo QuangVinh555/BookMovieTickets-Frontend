@@ -1,5 +1,5 @@
 import axios from "axios";
-import { createShowTime, deleteShowTime, getAllShowTimeByCinemaNameIdAndDate, showTimeError, showTimeStart, updateShowTime } from "./ShowTimeSlice";
+import { createShowTime, deleteShowTime, getAllShowTimeByCinemaNameIdAndDate, getAllShowTimeByMovieId, showTimeError, showTimeStart, updateShowTime } from "./ShowTimeSlice";
 
 export const getAllShowTimeByCinemaNameIdAndDateApi = async(param1, param2, dispatch) => {
     const PK = process.env.REACT_APP_PUBLIC_API;
@@ -40,6 +40,28 @@ export const deleteShowTimeApi = async(param, dispatch) => {
     try{
         const res = await axios.delete(`${PK}/showtime/${param}`);
         dispatch(deleteShowTime(res.data));
+    }catch(err){
+        dispatch(showTimeError());
+    }
+}
+
+export const getAllShowTimeByMovieId3Api = async(movieId, locationId, date, dispatch) => {
+    const PK = process.env.REACT_APP_PUBLIC_API;
+    dispatch(showTimeStart());
+    try{
+        const res = await axios.get(`${PK}/showtime/movie?movieId=${movieId}&locationId=${locationId}&date=${date}`);
+        dispatch(getAllShowTimeByMovieId(res.data));
+    }catch(err){
+        dispatch(showTimeError());
+    }
+}
+
+export const getAllShowTimeByMovieId4Api = async(movieId, locationId, date, cinemaTypeId, dispatch) => {
+    const PK = process.env.REACT_APP_PUBLIC_API;
+    dispatch(showTimeStart());
+    try{
+        const res = await axios.get(`${PK}/showtime/movie?movieId=${movieId}&locationId=${locationId}&date=${date}&cinemaTypeId=${cinemaTypeId}`);
+        dispatch(getAllShowTimeByMovieId(res.data));
     }catch(err){
         dispatch(showTimeError());
     }

@@ -31,6 +31,7 @@ import { createBookTicketApi } from "../../redux/bookTicket/BookTicketApi";
 import { updateAuth } from "../../redux/auth/AuthSlice";
 import { ToastContainer, toast } from "react-toastify";
 import { getIdUserByLoginGGApi } from "../../redux/user/UserApi";
+import { useNavigate } from "react-router-dom";
 
 
 const BuyTicket = () => {
@@ -272,6 +273,7 @@ const BuyTicket = () => {
   const [openChairStatus, setOpenChairStatus] = useState(false);
   const [dataHourTime, setDataHourTime] = useState();
   const [dataShowTime, setDataShowTime] = useState();
+
   const handleGetChairByHourTime = async (_hourTime, _showTime) => {
       setDataHourTime(_hourTime);
       setDataShowTime(_showTime);
@@ -300,7 +302,20 @@ const BuyTicket = () => {
     
   }
 
-     
+  // lấy ra ngày hiện tại
+  const currentDate = new Date(); // Tạo đối tượng Date với ngày và giờ hiện tại
+  const yearNow = currentDate.getFullYear(); // Lấy năm hiện tại
+  const monthNow = (currentDate.getMonth() + 1).toString().padStart(2, '0'); // Lấy tháng hiện tại và đảm bảo có 2 chữ số
+  const dayNow = currentDate.getDate().toString().padStart(2, '0'); // Lấy ngày hiện tại và đảm bảo có 2 chữ số
+
+  let dateNowMovie = yearNow + "-" + monthNow + "-" + dayNow;
+
+  // ================= ĐẶT VÉ THEO PHIM =============
+  const navigate = useNavigate();
+  const handleMoveMovieDetail = (movie) => {
+        navigate("/muavetheophim", { state: { movie: movie, dateNowMovie: dateNowMovie } });
+  }
+
   return (
     <div className="buyticket">
         {
@@ -323,15 +338,11 @@ const BuyTicket = () => {
               />
             )}
             {movies.slice(startIndex, endIndex + 1).map((movie, index) => {
-              // const isActive = index === endIndex + 1;
-              // const isPrevious = index < endIndex;
-              // const order = isPrevious ? index - startIndex : index - startIndex - 1;
               return (
                 <div
+                  onClick={() => handleMoveMovieDetail(movie)}
                   key={index}
                   className={`buyticket-movie-item`}
-                  // className={`buyticket-movie-item ${isActive ? "active" : ""}`}
-                  // style={{ order }}
                 >
                   <div className="buyticket-movie-img">
                     <img src={movie?.data.mainSlide || Photo} alt="" />
@@ -481,7 +492,7 @@ const BuyTicket = () => {
                       <p>2D phụ đề</p>
                       <div className="buyticket-showtime-hourtime-list">
                         {
-                            hourTimes.map(hourTime => {
+                            hourTimes?.map(hourTime => {
                                 if(hourTime.data.showTimeId === showTime.data?.id){
                                     return (
                                         <button key={hourTime.data?.id} onClick={() => handleGetChairByHourTime(hourTime.data, showTime.data)}>{hourTime.data.time} ~ {hourTime.data.endTime}</button>

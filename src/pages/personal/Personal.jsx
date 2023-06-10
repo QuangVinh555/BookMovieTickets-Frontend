@@ -174,7 +174,7 @@ const Personal = () => {
                   </div>
                   <div className="personal-right-point-rank">
                     <h2>Hạng:</h2>
-                    <h2>{userLoginGG?.data.userRank}</h2>
+                    <h2>{userLoginGG?.data?.userRank}</h2>
                   </div>
                 </div>
               </div>

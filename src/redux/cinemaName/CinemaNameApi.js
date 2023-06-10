@@ -1,5 +1,5 @@
 import axios from "axios";
-import { cinemaNameError, cinemaNameStart, createCinemaName, getAllCinemaNames, getAllCinemaNamesByCinemaTypeId, getAllCinemaNamesByLocationId, getAllCinemaNamesByLocationIdAndCinemaTypeId, getAllCinemaNamesByPage } from "./CinemaNameSlice";
+import { cinemaNameError, cinemaNameStart, createCinemaName, getAllCinemaNames, getAllCinemaNamesByCinemaTypeId, getAllCinemaNamesByLocationId, getAllCinemaNamesByLocationIdAndCinemaTypeId, getAllCinemaNamesByPage, getByMovieId, getByMovieIdAll } from "./CinemaNameSlice";
 
 export const getAllCinemaNamesByPageApi = async(param, dispatch) => {
     const PK = process.env.REACT_APP_PUBLIC_API;
@@ -67,24 +67,24 @@ export const createCinemaNameApi = async(cinemaName, dispatch) => {
     }
 }
 
-// export const updateUserRankApi = async(userRank, param, dispatch) => {
-//     const PK = process.env.REACT_APP_PUBLIC_API;
-//     await dispatch(userRankStart());
-//     try{
-//         const res = await axios.put(`${PK}/rankuser/${param}`, userRank);
-//         await dispatch(updateUserRank(res.data));
-//     }catch(err){
-//         await dispatch(userRankError());
-//     }
-// }
+export const getByMovieIdApi = async(locationId, movieId, date, dispatch) => {
+    const PK = process.env.REACT_APP_PUBLIC_API;
+    dispatch(cinemaNameStart());
+    try{
+        const res = await axios.get(`${PK}/cinemaname/bymovie?locationId=${locationId}&movieId=${movieId}&date=${date}`);
+        dispatch(getByMovieId(res.data));
+    }catch(err){
+        dispatch(cinemaNameError());
+    }
+}
 
-// export const deleteUserRankApi = async(param, dispatch) => {
-//     const PK = process.env.REACT_APP_PUBLIC_API;
-//     await dispatch(userRankStart());
-//     try{
-//         const res = await axios.delete(`${PK}/rankuser/${param}`);
-//         await dispatch(deleteUserRank(res.data));
-//     }catch(err){
-//         await dispatch(userRankError());
-//     }
-// }
+export const getByMovieIdAllApi = async(locationId, cinemaTypeId, movieId, date, dispatch) => {
+    const PK = process.env.REACT_APP_PUBLIC_API;
+    dispatch(cinemaNameStart());
+    try{
+        const res = await axios.get(`${PK}/cinemaname/bymovie?locationId=${locationId}&cinemaTypeId=${cinemaTypeId}&movieId=${movieId}&date=${date}`);
+        dispatch(getByMovieIdAll(res.data));
+    }catch(err){
+        dispatch(cinemaNameError());
+    }
+}

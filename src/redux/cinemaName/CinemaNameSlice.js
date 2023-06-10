@@ -57,6 +57,16 @@ export const CinemaNameSlice = createSlice({
             state.cinemaName = action.payload
             state.error = false;
         },
+        getByMovieId: (state,action) => {
+            state.pending = false;
+            state.cinemaNames = action.payload
+            state.error = false;
+        },
+        getByMovieIdAll: (state,action) => {
+            state.pending = false;
+            state.cinemaNames = action.payload
+            state.error = false;
+        },
     }
 });
 
@@ -64,5 +74,6 @@ export const {cinemaNameStart, cinemaNameError,
     getAllCinemaNamesByPage, getAllCinemaNames, createCinemaName, 
     updateCinemaName, deleteCinemaName, getAllCinemaNamesByLocationId, 
     getAllCinemaNamesByCinemaTypeId,
-    getAllCinemaNamesByLocationIdAndCinemaTypeId} = CinemaNameSlice.actions;
+    getAllCinemaNamesByLocationIdAndCinemaTypeId,
+    getByMovieId, getByMovieIdAll} = CinemaNameSlice.actions;
 export default CinemaNameSlice.reducer;

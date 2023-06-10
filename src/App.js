@@ -19,6 +19,7 @@ import { useEffect } from "react";
 import { useState } from "react";
 import Home from "./pages/home/Home";
 import Personal from "./pages/personal/Personal";
+import MovieDetail from "./pages/moviedetail/MovieDetail";
  
 
 function App() {
@@ -42,6 +43,7 @@ function App() {
           <Route element={<Default />}>
             <Route index path="/" element={<Home />} />
             <Route path="/muave" element={<BuyTicket />} />
+            <Route path="/muavetheophim" element={<MovieDetail />} />
             <Route path="/taikhoan" element={<Personal />} />
           </Route>
 

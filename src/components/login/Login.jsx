@@ -19,6 +19,7 @@ const Login = () => {
     const token = useSelector(state => state.auth.token);
     const tokenGG = useSelector(state => state.googleLogin.tokenGG);
     const googleLogin = useSelector(state => state.googleLogin.googleLogin);
+    const pendingGG = useSelector(state => state.googleLogin.pending);
     // open form register
     const hanldeIsOpenFormRegister = () => {
         dispatch(updateAuth(2))
@@ -95,6 +96,12 @@ const Login = () => {
             <div className="lds-dual-ring"></div>
           </div>
         )
+      }{
+        pendingGG && (
+            <div className = "userinfo-loading">
+              <div className="lds-dual-ring"></div>
+            </div>
+          )
       }
         <div className="login-2" onClick={(e) => handlePropagation(e)}>
             <div className="login-logo">
