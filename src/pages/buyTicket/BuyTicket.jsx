@@ -353,7 +353,7 @@ const BuyTicket = () => {
                     <h3>{movie?.data.category}</h3>
                     <p className="buyticket-movie-star">
                       <ThumbUpOffAltIcon />
-                      {movie?.data.totalPercent}
+                      {Math.round(movie?.data.totalPercent) + '%'}
                     </p>
                   </div>
                 </div>

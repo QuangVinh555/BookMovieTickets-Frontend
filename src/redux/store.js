@@ -18,6 +18,7 @@ import BookTicketDetailReducer from "./bookTicketDetail/BookTicketDetailSlice";
 import ComboReducer from "./combo/ComboSlice";
 import UserPointReducer from "./usePoint/UserPointSlice";
 import GoogleLoginReducer from "./gooleLogin/GooleLoginSlice";
+import CommentReducer from "./comment/CommentSlice";
 export default configureStore({
     reducer: {
         global: GlobalReducer,
@@ -39,5 +40,6 @@ export default configureStore({
         combo: ComboReducer,
         userPoint: UserPointReducer,
         googleLogin: GoogleLoginReducer,
+        comment: CommentReducer,
     }  
 });

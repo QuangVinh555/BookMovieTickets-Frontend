@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import "./MovieDetail.scss";
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import ContainerSlide from "../../assets/image/Container.jpg"
 import { useState } from 'react';
@@ -20,6 +20,11 @@ import { updateAuth } from '../../redux/auth/AuthSlice';
 import { createBookTicketApi } from '../../redux/bookTicket/BookTicketApi';
 import ChairStatus from '../../components/chairStatus/ChairStatus';
 import { getIdUserByLoginGGApi } from '../../redux/user/UserApi';
+import { createCommentApi, getAllCommentsByMovieIdApi } from '../../redux/comment/CommentApi';
+import CelebrationIcon from '@mui/icons-material/Celebration';
+import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
+import StarOutlineIcon from '@mui/icons-material/StarOutline';
+
 
 const MovieDetail = () => {
     const dispatch = useDispatch();
@@ -31,7 +36,8 @@ const MovieDetail = () => {
     const hourTimes = useSelector((state) => state.hourTime.hourTimeByShowTimes);
     const token = useSelector(state => state.auth.token)
     const tokenGG = useSelector(state => state.googleLogin.tokenGG)
-
+    const comments = useSelector(state => state.comment.comments)
+    const comment = useSelector(state => state.comment.comment)
 
     // lấy ra id user khi đăng nhập bằng gg để tạo vé
     const userLoginGG = useSelector(state => state.user.user);
@@ -244,8 +250,7 @@ const MovieDetail = () => {
   const [openChairStatus, setOpenChairStatus] = useState(false);
   const [dataHourTime, setDataHourTime] = useState();
   const [dataShowTime, setDataShowTime] = useState();
-  console.log(dataShowTime)
-  console.log(dataHourTime)
+  
   const handleGetChairByHourTime = async (_hourTime, _showTime) => {
       setDataHourTime(_hourTime);
       setDataShowTime(_showTime);
@@ -270,8 +275,111 @@ const MovieDetail = () => {
       await createBookTicketApi(newBookTicket, dispatch);
       setOpenChairStatus(true);
       console.log(newBookTicket)
+    }  
+  }
+
+  // ============ Bình luận ============
+  useEffect(() => {
+    const getAllCommentsByMovieId = async() => {
+      await getAllCommentsByMovieIdApi(movie.id, dispatch);
     }
-    
+    getAllCommentsByMovieId();
+  }, [movie, comment]);
+
+  // open form raiting
+  const [isOpenRaiting, setOpenRaiting] = useState(false);
+  const handleOpenFormRaiting = () => {
+    setOpenRaiting(true);
+  }
+
+  // tránh sự kiện nỗi bọt từ thẻ cha khi cancel dialog add new user
+  const handlePropagation = (e) => {
+    e.stopPropagation();
+  };
+
+  // 1 list ngôi sao
+  const listStars = [
+    {
+      name: 'star',
+      value: 1,
+      icon: <StarOutlineIcon />
+    },
+    {
+      name: 'star',
+      value: 2,
+      icon: <StarOutlineIcon />
+    },
+    {
+      name: 'star',
+      value: 3,
+      icon: <StarOutlineIcon />
+    },
+    {
+      name: 'star',
+      value: 4,
+      icon: <StarOutlineIcon />
+    },
+    {
+      name: 'star',
+      value: 5,
+      icon: <StarOutlineIcon />
+    }
+  ]
+
+  const [isStarActive, setStarActive] = useState(false);
+  const [dataStar, setDataStar] = useState();
+  const handleSelectedStar = (star,index) =>{
+    setDataStar(star);
+    const starElements = document.querySelectorAll(".star");
+    starElements.forEach((item, i) => {
+      if(i <= index){     
+        item.classList.add("active");
+        setStarActive(!isStarActive);      
+      }else{
+        item.classList.remove("active");
+        const icons = document.querySelectorAll(".star svg");
+        icons.forEach(svg => {
+          svg.classList.remove("active");
+        })
+      }
+    })    
+  }
+
+  useEffect(() => {
+    const icons = document.querySelectorAll(".active svg");
+      icons.forEach(icon =>{
+        icon.classList.add("active");
+      })
+  }, [isStarActive])
+
+  const [contentRaiting, setContentRaiting] = useState("");
+  const handlePostRaiting = async () => {
+    if(dataStar === undefined || contentRaiting === ""){
+      toast.info(
+        "Bạn hãy nhập đầy đủ!",
+        {
+          position: toast.POSITION.TOP_RIGHT,
+          autoClose: 2000,
+        }      
+      );    
+    }else{
+      const newRaiting = {
+        UserId: parseInt(token?.Id) || userLoginGG?.data?.id,
+        MovieId: movie.id,
+        Content: contentRaiting,
+        CountStars: dataStar.value
+      };
+      console.log(newRaiting);
+      await createCommentApi(newRaiting, dispatch);
+      toast.success(
+        "Cảm ơn bạn đã để lại đánh giá! !",
+        {
+          position: toast.POSITION.TOP_RIGHT,
+          autoClose: 2000,
+        }      
+      );    
+      setOpenRaiting(false)
+    }
   }
   return (
     <div className="moviedetail">
@@ -417,9 +525,73 @@ const MovieDetail = () => {
                   ))}
             </div>
           </div>
+          <div className="moviedetail-left-comment">
+            <h1>Bình luận từ người xem</h1>
+            <div className="moviedetail-left-comment-title">
+              <h3>Tất cả ({comments.length})</h3>
+            </div>
+            {
+              comments.map(comment => (
+              <div className="moviedetail-left-comment-user">
+                <div className="moviedetail-left-comment-avatar">
+                  <img src={ comment.data.avatar || NoAvatar} alt="" />
+                </div>
+                <div className="moviedetail-left-comment-info">
+                  <div className="moviedetail-left-comment-info-name">
+                    <h2>{comment.data.fullName}</h2>
+                    <span>{comment.data.createAt}</span>
+                  </div>
+                  <div className="moviedetail-left-comment-info-ticketState">
+                    <p>Đã mua vé trên Moveek</p>
+                  </div>
+                  <div className="moviedetail-left-comment-info-content">
+                    <p>{comment.data.content}</p>
+                  </div>
+                </div>
+              </div>
+              ))
+            }           
+          </div>
         </div>
         <div className="moviedetail-right">
-
+            <div className="moviedetail-right-raiting">
+              <h1>Đánh giá từ người xem</h1>
+              <div className="moviedetail-right-raiting-info">
+                {
+                  movie.totalPercent >= 70 && (
+                    <div className="moviedetail-right-raiting-state">
+                      <CelebrationIcon />
+                      <h1>Cực phẩm!</h1>
+                    </div>
+                  ) ||
+                  (movie.totalPercent >= 50 && movie.totalPercent < 70) && (
+                    <div className="moviedetail-right-raiting-state">
+                      <CelebrationIcon />
+                      <h1>Đáng xem!</h1>
+                    </div>
+                  ) ||
+                  (movie.totalPercent < 50) && (
+                    <div className="moviedetail-right-raiting-state">
+                      <CelebrationIcon />
+                      <h1>Chưa được đánh giá!</h1>
+                    </div>
+                  )
+                }
+                <div className="moviedetail-right-raiting-statistica">
+                  <div className="moviedetail-right-raiting-statistica-medium">
+                    <h3>{movie.totalPercent ? Math.round(movie.totalPercent) + '%' : "Chưa có điểm"}</h3>
+                    <p>Điểm trung bình</p>
+                  </div>
+                  <div className="moviedetail-right-raiting-statistica-evaluate">
+                    <h3>{comments.length}</h3>
+                    <p>Đánh giá</p>
+                  </div>
+                </div>
+                <div className="moviedetail-right-raiting-comment">
+                  <button onClick={() => handleOpenFormRaiting()}>Đánh giá</button>
+                </div>
+              </div>
+            </div>
         </div>
       </div>
 
@@ -433,6 +605,46 @@ const MovieDetail = () => {
             dateShowTime = {dateShowTime}
             userLoginGG = {userLoginGG.data}
           />
+        )
+      }
+
+      {
+        isOpenRaiting && (
+          <div className="raiting" onClick = {() => setOpenRaiting(false)}>
+            <div className="raiting-2" onClick={(e) => handlePropagation(e)}>
+              <div className="raiting-header">
+                <h1>Đánh giá Doraemon: Nobita Và Vùng Đất Lý Tưởng Trên Bầu Trời</h1>
+              </div>
+              <div className="raiting-container">
+                <div className="raiting-container-movie">
+                  <img src={movie.mainSlide} alt="" />
+                </div>
+                <div className="raiting-container-raiting">
+                  <div className="raiting-container-star">
+                    {
+                      listStars.map((star,index) => (
+                        <p className="star" key={index} onClick={() =>handleSelectedStar(star,index)}>
+                          {star.icon}
+                        </p>
+                      ))
+                    }
+                  </div>
+                  <div className="raiting-container-comment">
+                    <h2>Review của bạn</h2>
+                    <textarea 
+                      onChange={(e) => setContentRaiting(e.target.value)}
+                      placeholder="Đánh giá của bạn về Doraemon: Nobita Và Vùng Đất Lý Tưởng Trên Bầu Trời"
+                    >                
+                    </textarea>
+                  </div>
+                  <div className="raiting-container-footer">
+                    <button onClick={() => handlePostRaiting()}>Đăng</button>
+                    <button onClick = {() => setOpenRaiting(false)}>Hủy</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         )
       }
 
