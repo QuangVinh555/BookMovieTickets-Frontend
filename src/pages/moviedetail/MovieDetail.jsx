@@ -24,12 +24,17 @@ import { createCommentApi, getAllCommentsByMovieIdApi } from '../../redux/commen
 import CelebrationIcon from '@mui/icons-material/Celebration';
 import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 import StarOutlineIcon from '@mui/icons-material/StarOutline';
+import axios from 'axios';
+import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
+import { getMovieSmallApi } from '../../redux/movie/MovieApi';
 
 
 const MovieDetail = () => {
+    const RECOMMENDATIONS = process.env.REACT_APP_PUBLIC_API_RECOMMENDATIONS;
+    const PK = process.env.REACT_APP_PUBLIC_API;
     const dispatch = useDispatch();
     const location = useLocation();
-    const movie = location.state.movie.data;
+    const moviedetail = location.state.movie.data;
     const cinemaTypes = useSelector((state) => state.cinemaType.cinemaTypes);
     const locations = useSelector((state) => state.location.listSearch);
     const showTimes = useSelector((state) => state.showTime.showTimes);
@@ -38,6 +43,20 @@ const MovieDetail = () => {
     const tokenGG = useSelector(state => state.googleLogin.tokenGG)
     const comments = useSelector(state => state.comment.comments)
     const comment = useSelector(state => state.comment.comment)
+    const movies = useSelector((state) => state.movie.movies);
+
+   // get id movie 
+   const [movie, setMovie] = useState(moviedetail);
+   const [suggestions, setSuggestions] = useState(0);
+   useEffect(() => {
+     const getByIdMovie = async () => {
+       const res = await axios.get(`${PK}/movie/${suggestions?.data?.id || moviedetail.id}`);
+       if(res.data){
+         setMovie(res.data.data);
+       }
+     }
+     getByIdMovie();
+   }, [moviedetail, suggestions])
 
     // lấy ra id user khi đăng nhập bằng gg để tạo vé
     const userLoginGG = useSelector(state => state.user.user);
@@ -50,6 +69,7 @@ const MovieDetail = () => {
         getIdUserByLoginGG();
       }
     },[tokenGG, token])
+
 
     // format yyyy-mm--dd -> dd/mm/yy
     function formatDate(input) {
@@ -381,6 +401,23 @@ const MovieDetail = () => {
       setOpenRaiting(false)
     }
   }
+
+  // =============== List phim đang chiếu ==============
+  // Tạo một đối tượng Date mới
+  var date = new Date();
+  // Lấy thông tin về ngày, tháng, năm
+  var day = date.getDate();
+  var month = date.getMonth() + 1; // Lưu ý: tháng trong JavaScript bắt đầu từ 0
+  var year = date.getFullYear();
+
+  // get all movie by phim đang chiếu
+  useEffect(() => {
+    const getAllMoviesByDateSmall = async () => {
+      await getMovieSmallApi(year + "-" + month + "-" + day, dispatch);
+    };
+    getAllMoviesByDateSmall();
+  }, []);
+  
   return (
     <div className="moviedetail">
         {openVideoTrailler && (
@@ -413,7 +450,7 @@ const MovieDetail = () => {
                     <div className="moviedetail-header-list">
                         <div className="moviedetail-header-date">
                             <p>Khởi chiếu</p>
-                            <p>{formatDate(movie?.premiereDate?.split("T")[0])}</p>
+                            <p>{formatDate(movie?.premiereDate?.split("T")[0] || movie?.premiere_date?.split("T")[0]) }</p>
                         </div>
                         <div className="moviedetail-header-time">
                             <p>Thời lượng</p>
@@ -573,7 +610,7 @@ const MovieDetail = () => {
                   (movie.totalPercent < 50) && (
                     <div className="moviedetail-right-raiting-state">
                       <CelebrationIcon />
-                      <h1>Chưa được đánh giá!</h1>
+                      <h1>Chưa được xếp hạng!</h1>
                     </div>
                   )
                 }
@@ -590,6 +627,38 @@ const MovieDetail = () => {
                 <div className="moviedetail-right-raiting-comment">
                   <button onClick={() => handleOpenFormRaiting()}>Đánh giá</button>
                 </div>
+              </div>
+            </div>
+            <div className="moviedetail-right-suggest">
+              <h1>Phim đang chiếu</h1>
+              <div className="moviedetail-right-suggest-list">
+                {
+                  movies?.map(movieSuggest => {
+
+                  if(movieSuggest.data.id !== movie.id){
+                    return (
+                      <div className="moviedetail-right-suggest-item" onClick={() => setSuggestions(movieSuggest)}>
+                        <img src={movieSuggest.data.mainSlide} alt="" />
+                        <div className="moviedetail-right-suggest-info">
+                          <p
+                            className={`moviedetail-right-suggest-info-stamp 
+                            ${movieSuggest.data.stamp === "P" && 'green' || 
+                              movieSuggest.data.stamp === "13+" && 'yellow' || 
+                              movieSuggest.data.stamp === "16+" && 'orange' || 
+                              movieSuggest.data.stamp === "18+" && 'red'}  `}
+                          >{movieSuggest.data.stamp}</p>
+                          <h2>{movieSuggest.data.name}</h2>
+                          <p>{movieSuggest.data.category}</p>
+                          <p className="moviedetail-right-suggest-info-star">
+                            <ThumbUpOffAltIcon />
+                            {Math.round((movieSuggest?.data.totalPercent)) + '%'}
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  }                 
+                  })
+                }
               </div>
             </div>
         </div>

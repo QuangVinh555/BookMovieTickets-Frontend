@@ -91,6 +91,7 @@
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
+                height: 66px;
                 h1{
                     font-size: 2.2rem;
                     width: 400px;
@@ -430,6 +431,78 @@
 
                             &:hover {
                                 opacity: 0.8;
+                            }
+                        }
+                    }
+                }
+            }
+
+            .moviedetail-right-suggest{
+                margin-top: 25px;
+                h1{
+                    font-size: 2.2rem;
+                }
+                .moviedetail-right-suggest-list{
+                    margin-top: 20px;
+                    .moviedetail-right-suggest-item{
+                        display: flex;
+                        margin-top: 15px;
+                        padding-bottom: 15px;
+                        border-bottom: 1px solid #ccc;
+                        cursor: pointer;
+                        overflow: hidden;
+                        
+                        img{
+                            width: 100px;
+                            object-fit: cover;
+                            border-radius: 5px;
+                            &:hover {
+                                transform: scale(1.02);
+                            }
+                        }
+                        .moviedetail-right-suggest-info{
+                            margin-left: 10px;
+                            
+                            .moviedetail-right-suggest-info-stamp{
+                                &.green{
+                                    background-color: green
+                                }
+                                &.yellow{
+                                    background-color: yellow;
+                                    color: black;
+                                }
+                                &.orange{
+                                    background-color: orange
+                                }
+                                &.red{
+                                    background-color: red
+                                }
+                            }
+
+                            p:nth-child(1){
+                                font-size: 1.5rem;
+                                background-color: orangered;
+                                width: 16%;
+                                height: 15%;
+                                border-radius: 5px;
+                                text-align: center;
+                                color: var(--bs-white-color);
+                            }
+                            h2{
+                                font-size: 2.2rem;
+                            }
+                            p:nth-child(3){
+                                font-size: 1.6rem;
+                            }
+                            p:nth-child(4){
+                                margin-top: 10px;
+                                svg{
+                                    font-size: 2rem;
+                                    color: aqua;
+                                }
+                                font-size: 1.6rem;
+                                display: flex;
+                                align-items: center;
                             }
                         }
                     }

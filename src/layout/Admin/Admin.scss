@@ -58,6 +58,7 @@
             margin: 0 50px;
             height: 100px;
 
+
             .admin-right-menu{
                 display: flex;
                 align-items: center;
@@ -75,6 +76,7 @@
                 display: flex;
                 align-items: center;
                 cursor: pointer;
+                position: relative;
 
                 .admin-right-logo{
                     width: 44px;
@@ -98,7 +100,57 @@
                         opacity: 0.8;
                     }
                 }
+
+                .admin-right-profile-hover{
+                    position: absolute;
+                    width: 130px;
+                    height: 80px;
+                    bottom: -85px;
+                    border-radius: 5px;
+                    background-color: #fff;
+                    display: none;
+                    
+                    ul{
+                        li{
+                            &:hover{
+                                opacity: 0.8;
+                                background-color: var(--bs-admin-left);
+                                border-radius: 5px;
+                                color: var(--bs-white-color);
+                            }
+                            padding: 8px 10px;
+                            list-style: none;
+                            font-size: 1.6rem;
+                        }
+                        li:nth-child(1){
+                            border-bottom: 1px solid #ccc;                     
+                        }
+                    }
+                }
+
+                
+                &:hover .admin-right-profile-hover{
+                    display: block;
+                }
+
+                &::after{
+                    content: "";
+                    position: absolute;
+                    width: 130px;
+                    height: 10px;
+                    bottom: -6px;               
+                }
             }
+        }
+    }
+
+      // toast message
+      .Toastify{
+        font-size: 1.5rem;
+        
+        .Toastify__toast-container{
+            
+            margin-top: 50px;
         }
     }
 }

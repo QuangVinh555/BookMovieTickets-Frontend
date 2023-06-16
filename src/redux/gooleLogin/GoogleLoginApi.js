@@ -7,7 +7,6 @@ export const loginGooleApi = async(tokenGG, dispatch) => {
     try{
         const res = await axios.post(`${PK}/tokengoogle`, tokenGG);
         dispatch(loginGoogleSuccess(res.data));
-        console.log(res);
     }catch(err){
         dispatch(loginGoogleError());
     }

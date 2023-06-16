@@ -15,6 +15,10 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
 import { useDispatch, useSelector } from 'react-redux';
 import { updatedChecked, updatedTitle } from '../../redux/global/GlobalSlice';
+import { ToastContainer, toast } from 'react-toastify';
+import { LOCAL_STORAGE_TOKEN_NAME } from '../../localStorage/localStorage';
+import { getToken, updateAuth } from '../../redux/auth/AuthSlice';
+import { loginGoogleSuccess, updateTokenGG } from '../../redux/gooleLogin/GooleLoginSlice';
 const Admin = () => {
   const listTitles = [
     {
@@ -94,7 +98,23 @@ const Admin = () => {
 
   // get token 
   const token = useSelector(state => state.auth.token)
-  console.log(token)
+  
+  const handleLogOut = () => {
+    localStorage.removeItem(LOCAL_STORAGE_TOKEN_NAME);
+    dispatch(updateAuth(0)); 
+    toast.info(
+      "Bạn đã đăng xuất !",
+      {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 2000,
+      }      
+    );  
+    dispatch(getToken(""));
+    dispatch(updateTokenGG(""));
+    dispatch(loginGoogleSuccess(null));
+    navigate("/")    
+  }
+
   return (
     <div className="admin">
         <div className="admin-left">
@@ -135,12 +155,20 @@ const Admin = () => {
                 <h3>{token.Username}</h3>
                 <span>{token.PhoneNumber}</span>
               </div>
+              <div className="admin-right-profile-hover">
+                <ul>
+                  <li>Cài đặt</li>
+                  <li onClick={() => handleLogOut()}>Đăng xuất</li>
+                </ul>
+              </div>
             </div>
           </div>
           <div className="admin-right-content">
             <Outlet />
           </div>
         </div>
+
+        <ToastContainer />
     </div>
   )
 }
