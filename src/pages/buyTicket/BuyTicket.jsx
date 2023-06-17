@@ -143,6 +143,21 @@ const BuyTicket = () => {
   // ======= search by cinema type
   const [searchByCinemaTypeId, setSearchByCinemaTypeId] = useState();
   const handleClickCinemaType = (cinemaType) => {
+    const cinemaTypeElements = document.querySelectorAll('.cinemaroom-type');
+    cinemaTypeElements.forEach((cinemaTypeElement) => {
+      if(cinemaTypeElement.textContent === cinemaType.name){
+            const imgElement = cinemaTypeElement.querySelector("img");
+            if(imgElement){
+              imgElement.classList.add("active")
+            }    
+      }else{
+        const imgElement = cinemaTypeElement.querySelector("img");
+        if(imgElement){
+          imgElement.classList.remove("active")
+        }
+      }  
+    })
+
     if (flag === 1 || flag === 3) {
       setFlag(3);
       setSearchByCinemaTypeId(cinemaType?.id);
@@ -150,8 +165,10 @@ const BuyTicket = () => {
       setFlag(2);
       setSearchByCinemaTypeId(cinemaType?.id);
     }
+    if(cinemaType.name === "Tất cả"){
+      setFlag(0)
+    }
   };
-
   // ===== tìm kiếm theo từng điều kiện flag ======
   // theo locationId
   useEffect(() => {
@@ -191,6 +208,14 @@ const BuyTicket = () => {
   const [dataCinemaName, setDataCinemaName] = useState();
   const handleClickCinemaName = (cinemaName) => {
     setDataCinemaName(cinemaName);
+    const cinemaNameElements = document.querySelectorAll(".cinemaroom-left-info");
+    cinemaNameElements.forEach((element) => {
+      if(element.textContent === cinemaName.name){
+         element.classList.add("active");
+      }else{
+        element.classList.remove("active");
+      }
+    })
   };
 
   //================== right =================
@@ -375,7 +400,7 @@ const BuyTicket = () => {
             <span>Vị trí</span>
             <select onChange={(e) => handleChangeSelectLocation(e)}>
               <option value="Default" selected disabled hidden>
-                Choose here
+                TP.Hồ Chí Minh
               </option>
               {locations.map((item) => (
                 <option key={item.data?.id} value={item.data?.id}>
@@ -385,7 +410,7 @@ const BuyTicket = () => {
             </select>
           </div>
           <div className="cinemaroom-types">
-            <div className="cinemaroom-type" onClick={() => setFlag(0)}>
+            <div className="cinemaroom-type" onClick={() => handleClickCinemaType({name: "Tất cả"})}>
               <img src={All} alt="" />
               <p>Tất cả</p>
             </div>

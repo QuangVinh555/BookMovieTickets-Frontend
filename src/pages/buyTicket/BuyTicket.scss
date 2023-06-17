@@ -165,6 +165,12 @@
                     outline: none;
                     border-radius: 10px;
                     width: 160px;
+                    border: 1px solid #d82d8b;
+                    color: #d82d8b;
+
+                    option{
+                        color: var(--bs-black-color);
+                    }
                 }
             }
     
@@ -179,7 +185,7 @@
     
                     &:hover{
                         opacity: 0.8;
-                    }
+                    }              
     
                     img{
                         width: 50px;
@@ -187,6 +193,10 @@
                         border-radius: 10px;
                         background-color:  var(--bs-white-color);
                         border: 1px solid #ccc;
+
+                        &.active{
+                            border: 1px solid #d82d8b;
+                        }
                     }
     
                     p{
@@ -303,11 +313,11 @@
                         align-items: center;
         
                         &.active{
-                            background-color: rgba(255,255,255,0.5);
+                            background-color: rgba(0,0,0,0.2);
                         }
         
                         &:hover{
-                            background-color: rgba(0,0,0,0.2);
+                            background-color: rgba(103, 101, 101, 0.2);
                         }
                         img{
                             width: 40px;
