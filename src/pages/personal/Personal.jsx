@@ -4,7 +4,7 @@ import NoAvatar from "../../assets/image/noAvatar.png";
 import UserBig from "../../assets/image/UserBig.jpg";
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserPointByUserIdApi } from '../../redux/usePoint/UserPointApi';
-import { getIdUserByLoginGGApi, updateUserApi } from '../../redux/user/UserApi';
+import { getIdUserByLoginGGApi, getUserByIdApi, updateUserApi } from '../../redux/user/UserApi';
 import { getBookTicketByUserIdApi } from '../../redux/bookTicket/BookTicketApi';
 import { useState } from 'react';
 import ReactPaginate from 'react-paginate';
@@ -19,14 +19,13 @@ const Personal = () => {
   const bookTickets = useSelector(state => state.bookTicket.bookTickets);
   // lấy ra id user khi đăng nhập bằng gg để tạo vé
   const userLoginGG = useSelector(state => state.user.user);
-  
   useEffect(() => {
       const getIdUserByLoginGG = async () => {
         await getIdUserByLoginGGApi(token?.email || token?.Email, dispatch);
       }
       getIdUserByLoginGG();
   },[tokenGG,token]);
-  
+
   // nếu là user ở rank user nào thì sẽ hiện lên thông báo
   // const [toastDisplayed, setToastDisplayed] = useState(false);
   // useEffect(() => {
@@ -117,8 +116,7 @@ const Personal = () => {
     progressBar?.style.setProperty('--progress-value', `${progressValue}%`);
   })
 
-
-  // khi nào đủ mức điểm lên hạng thì sẽ cập nhật;
+  //khi nào đủ mức điểm lên hạng thì sẽ cập nhật;
   useEffect(() => {
     const updateUserRankByUser = async (userId) => {
       if(totalSpending >= 5500000 && totalSpending < 10000000){
@@ -174,7 +172,7 @@ const Personal = () => {
                   </div>
                   <div className="personal-right-point-rank">
                     <h2>Hạng:</h2>
-                    <h2>{userLoginGG?.data?.userRank}</h2>
+                    <h2>{userLoginGG?.data?.userRankId === 1 && "Member" || userLoginGG?.data?.userRankId === 2 && "VIP" || "VVIP" }</h2>
                   </div>
                 </div>
               </div>

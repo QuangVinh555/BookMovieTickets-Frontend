@@ -45,9 +45,14 @@ export const UserSlice = createSlice({
             state.pending = false;
             state.user = action.payload
             state.error = false;
+        },
+        getUserById: (state, action) => {
+            state.pending = false;
+            state.user = action.payload
+            state.error = false;
         }
     }
 });
 
-export const {userStart, userError, getAllUsers, createUser, updateUser, deleteUser, getAllSearchUser, getIdUserByLoginGG} = UserSlice.actions;
+export const {userStart, userError, getAllUsers, createUser, updateUser, deleteUser, getAllSearchUser, getIdUserByLoginGG, getUserById} = UserSlice.actions;
 export default UserSlice.reducer;

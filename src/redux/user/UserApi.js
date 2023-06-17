@@ -1,5 +1,5 @@
 import axios from "axios";
-import { userError, userStart, getAllUsers, createUser, updateUser, deleteUser, getAllSearchUser, getIdUserByLoginGG } from "./UserSlice";
+import { userError, userStart, getAllUsers, createUser, updateUser, deleteUser, getAllSearchUser, getIdUserByLoginGG, getUserById } from "./UserSlice";
 
 export const getAllUsersApi = async(param, dispatch) => {
     const PK = process.env.REACT_APP_PUBLIC_API;
@@ -62,6 +62,17 @@ export const getIdUserByLoginGGApi = async(email, dispatch) => {
     try{
         const res = await axios.get(`${PK}/user/email?email=${email}`);
         await dispatch(getIdUserByLoginGG(res.data));
+    }catch(err){
+        await dispatch(userError());
+    }
+}
+
+export const getUserByIdApi = async(userId, dispatch) => {
+    const PK = process.env.REACT_APP_PUBLIC_API;
+    await dispatch(userStart());
+    try{
+        const res = await axios.get(`${PK}/user/${userId}`);
+        await dispatch(getUserById(res.data));
     }catch(err){
         await dispatch(userError());
     }
