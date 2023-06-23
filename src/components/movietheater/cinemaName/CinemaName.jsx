@@ -299,6 +299,7 @@ const CinemaName = () => {
       }
     }
   }
+  console.log(cinemaNames);
     return (
     <div className="userinfo">
       {
@@ -386,7 +387,16 @@ const CinemaName = () => {
             <tr key={cinemaName.data.id}>
               <th scope="row">{index + 1}</th>
              
-              <td>{cinemaName.data.name}</td>
+              <td>
+                <span style={{ display: "flex", alignItems: "center" }}>
+                  <img
+                    className="userinfo-table-img"
+                    src={cinemaName?.data?.logo || NoAvatar}
+                    alt=""
+                  />
+                  {cinemaName.data.name}
+                </span>
+              </td>
               <td className="cinemaName-location">{cinemaName.data.locationDetail}</td>
               <td>
                 <EditIcon onClick={() => handleOpenEditUser(cinemaName.data)} />

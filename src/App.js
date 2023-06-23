@@ -20,6 +20,7 @@ import { useState } from "react";
 import Home from "./pages/home/Home";
 import Personal from "./pages/personal/Personal";
 import MovieDetail from "./pages/moviedetail/MovieDetail";
+import Statistic from "./pages/statistic/Statistic";
  
 
 function App() {
@@ -56,6 +57,7 @@ function App() {
               <Route path="/showtimes" element={<ShowTime />} />
               <Route path="/tickets" element={<Ticket />} />
               <Route path="/news" element={<New />} />
+              <Route path="/statistic" element={<Statistic />} />
             </Route>
             )}
         </Routes>

@@ -1,0 +1,216 @@
+.dashboard{
+    margin-left: 50px;
+    height: 595px;
+    overflow: auto;
+    canvas{
+        width: 200px;
+        height: 200px;
+    }
+
+    .dashboard-cinemaName{
+        margin-top: 50px;
+
+        .buyticket-cinematype{
+  
+            .buyticket-cinematype-title{
+                text-align: center;
+                h1{
+                    font-size: 3.5rem;
+                }
+            }
+    
+            .cinemaroom-header{
+                border: 1px solid #ccc;
+                padding: 10px 15px;
+                margin-top: 30px;
+                border-top-left-radius: 10px;
+                border-top-right-radius: 10px;
+                
+                .cinemaroom-location{
+                    margin-bottom: 15px;
+        
+                    span{
+                        font-size: 1.8rem;
+                    }
+        
+                    select{
+                        margin-left: 15px;
+                        height: 34px;
+                        // border: navajowhite;
+                        outline: none;
+                        border-radius: 10px;
+                        width: 160px;
+                        border: 1px solid #d82d8b;
+                        color: #d82d8b;
+    
+                        option{
+                            color: var(--bs-black-color);
+                        }
+                    }
+                }
+        
+                .cinemaroom-types{
+                    display: flex;
+                    align-items: center;
+                    position: relative;
+                    .cinemaroom-type{
+                        text-align: center;
+                        margin: 0 10px;
+                        cursor: pointer;
+        
+                        &:hover{
+                            opacity: 0.8;
+                        }              
+        
+                        img{
+                            width: 50px;
+                            object-fit: cover;
+                            border-radius: 10px;
+                            background-color:  var(--bs-white-color);
+                            border: 1px solid #ccc;
+    
+                            &.active{
+                                border: 1px solid #d82d8b;
+                            }
+                        }
+        
+                        p{
+                            width: 50px;
+                            overflow: hidden;
+                            font-size: 1.3rem;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                        }
+                    }
+        
+                    .cinemaroom-header-add{
+                        position: absolute;
+                        right: 56px;
+                        top: 12px;
+                        margin-left: 10px;
+                        button{
+                            width: 130px;
+                            border: none;
+                            outline: none;
+                            height: 34px;
+                            border-radius: 10px;
+                            background-color: var(--bs-blue-color);
+                            color: var(--bs-white-color);
+                            cursor: pointer;
+            
+                            &:hover{
+                                opacity: 0.6;
+                            }
+        
+                            svg{
+                                font-size: 2rem;
+                                margin: 0 4px -5px -6px;
+                            }
+                        }
+                    }
+                }
+            }
+        
+            .cinemaroom-content{
+                display: flex;
+                border: 1px solid #ccc;
+                // padding: 10px 15px;
+                border-bottom-left-radius: 10px;
+                border-bottom-right-radius: 10px;
+        
+                .cinemaroom-content-left{
+                    border-right: 1px solid #ccc;
+                    .cinemaroom-left-header {
+                        display: flex;
+                        align-items: center;
+                        margin: 8px 10px;
+                        justify-content: space-between;
+            
+                        .cinemaroom-left-search{
+                            position: relative;
+                            width: 100%;
+                            input{
+                                width: 100%;
+                                padding: 4px 10px;
+                                font-size: 1.4rem;
+                                height: 34px;
+                                border-radius: 10px;
+                                border: 1px solid #ccc;
+                                outline: none;
+                                font-weight: 300;
+                            }
+                            svg{
+                                position: absolute;
+                                top: 50%;
+                                right: 4px;
+                                transform: translateY(-50%);
+                                font-size: 2rem;
+                                color: #837e7e;
+                            }
+                        }
+            
+                        .cinemaroom-left-add{
+                            button{
+                                width: 120px;
+                                border: none;
+                                outline: none;
+                                height: 34px;
+                                border-radius: 10px;
+                                background-color: var(--bs-blue-color);
+                                color: var(--bs-white-color);
+                                cursor: pointer;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+            
+                                &:hover{
+                                    opacity: 0.6;
+                                }
+            
+                                svg{
+                                    font-size: 2rem;
+                                    margin: 0 4px 2px -6px;
+                                }
+                            }
+                        }
+                    }
+            
+                    .cinemaroom-left-infos{
+                        overflow-y: auto;
+                        height: 425px;
+            
+                        .cinemaroom-left-info{
+                            padding: 12px 0;
+                            cursor: pointer;
+                            box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+                            display: flex;
+                            align-items: center;
+            
+                            &.active{
+                                background-color: rgba(0,0,0,0.2);
+                            }
+            
+                            &:hover{
+                                background-color: rgba(103, 101, 101, 0.2);
+                            }
+                            img{
+                                width: 40px;
+                                object-fit: cover;
+                                border-radius: 10px;
+                                margin: 0 10px;
+                                border: 1px solid #ccc;
+                            }
+                            p{
+                                font-size: 1.6rem;
+                                margin-left: 6px;
+                            }
+                        }
+                    }
+                }
+                .dashboard-right{
+                    flex: 3;
+                }
+            }
+        }
+    }
+}
