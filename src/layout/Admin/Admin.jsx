@@ -59,7 +59,7 @@ const Admin = () => {
     {
       name: 'Thống kê',
       icon: <BarChartIcon />,      
-      path: '/statistical'
+      path: '/statistic'
     },
   ];
   const dispatch = useDispatch();

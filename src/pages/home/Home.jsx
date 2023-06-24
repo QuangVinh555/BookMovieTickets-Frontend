@@ -12,6 +12,7 @@ import { getIdUserByLoginGGApi } from '../../redux/user/UserApi';
 import MovieBanner from "../../assets/image/MovieBanner.jpg"
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useNavigate } from 'react-router-dom';
+import { getMovieSmallApi } from '../../redux/movie/MovieApi';
 
 const Home = () => {
   const RECOMMENDATIONS = process.env.REACT_APP_PUBLIC_API_RECOMMENDATIONS;
@@ -20,6 +21,8 @@ const Home = () => {
   const token = useSelector(state => state.auth.token)
   const tokenGG = useSelector(state => state.googleLogin.tokenGG)
   const isAuth = useSelector(state => state.auth.isAuth)
+
+  const [movie, setMovie] = useState([]);
 
    // lấy ra id user khi đăng nhập bằng gg để tạo vé
    const userLoginGG = useSelector(state => state.user.user);
@@ -33,22 +36,132 @@ const Home = () => {
    },[tokenGG, token])
 
    // =============== Gợi ý phim ==============
-   const [recomments, setRecomments] = useState();
-   useEffect(() => {
-      const recomment = {
-        user_id: userLoginGG?.data?.id || parseInt(token?.Id),
-        n_recommendations: 5
-      };
-      console.log(recomment)
-      const suggest = async () => {
-        const res = await axios.post(`${RECOMMENDATIONS}/recommendations`, recomment);
+   const [recomments, setRecomments] = useState([]);
+ 
+
+  // kết quả ma trận raiting
+  const PKRaiting = process.env.REACT_APP_PUBLIC_API_RECOMMENDATIONS;
+  const [comments, setComments] = useState();
+  useEffect(() => {
+    const comments = async () => {
+        const res = await axios.get(`${PK}/resultraiting`)
         if(res.data){
-          setRecomments(res.data.recommendations);
+            setComments(res.data);
+        }
+    }
+    comments();
+  }, [])
+
+ // Tạo đối tượng lưu trữ giá trị từng userId và movieId
+ const matrixData = {};
+
+ // Lặp qua mảng jsonData để gán giá trị countStars vào từng userId_movieId
+ for (let i = 0; i < comments?.length; i++) {
+    const item = comments[i];
+    const userId = item.data.userId;
+    const movieId = item.data.movieId;
+    const countStars = item.data.countStars;
+    const key = `${userId}_${movieId}`;
+    matrixData[key] = countStars;
+  }
+
+  // Tìm ra danh sách các userId và movieId duy nhất
+  const userIds = Array.from(new Set(comments?.map(item => item.data.userId)));
+  const movieIds = Array.from(new Set(comments?.map(item => item.data.movieId)));
+ 
+  // Tạo ma trận với kích thước tương ứng và gán giá trị 0 cho các giá trị null
+  const matrix = [];
+  for (let i = 0; i < userIds.length; i++) {
+    matrix[i] = [];
+    for (let j = 0; j < movieIds.length; j++) {
+      const key = `${userIds[i]}_${movieIds[j]}`;
+      matrix[i][j] = matrixData[key] || 0;
+    }
+  }
+  const [results, setResults] = useState();
+
+  useEffect(()=>{
+    if(comments){
+      const results = async() => {
+        const res = await axios.post(`${PKRaiting}/recommendations`, {ratings: matrix});
+        if(res.data){
+          setResults(res.data);
         }
       }
-      suggest();
-   }, [isAuth, tokenGG, token])
+      results();
+    }
+  }, [comments])
+  
+  useEffect(() => {
+    if (results && results?.predicted_ratings) {
+      const predictedRatings = results.predicted_ratings;
+      let dem =0
+      for (let i = 0; i < predictedRatings.length; i++) {
+        const userId = userIds[i];
+        const userIndex = i;
+    
+        for (let j = 0; j < predictedRatings[i].length; j++) {
+          const movieId = movieIds[j];
+          const movieIndex = j;
+      
+          const rating = predictedRatings[i][j].toFixed(2);
+
+          // Bạn có thể sử dụng thông tin này để hiển thị hoặc xử lý dữ liệu theo yêu cầu của bạn
+          if(userLoginGG?.data.id === userId){ 
+            if(rating > 0.00){
+              dem++;
+              setMovie(prevMovie => [...prevMovie, movieId]);
+            }            
+          }
+          if(userIds)
+          {
+            if(!userIds.includes(userLoginGG?.data.id)){
+              const getMovieTopRating = async () => {
+                const res = await axios.get(`${PK}/movie/toprating`)
+                if(res.data){
+                  setRecomments(res.data)
+                }
+              }
+              getMovieTopRating();
+            }
+
+          }
+        }
+      }
+      if(dem === 0){
+        const getMovieTopRating = async () => {
+          const res = await axios.get(`${PK}/movie/toprating`)
+          if(res.data){
+            setRecomments(res.data)
+          }
+        }
+        getMovieTopRating();
+      }
+    }
+  }, [results])
+
+  
+
+  useEffect(() => {
+    const getMovieById = async () => {
+      const uniqueMovies = Array.from(new Set(movie)); // Lọc các phần tử duy nhất trong mảng movie
+      const tempRecomments = [];
+  
+      for (const item of uniqueMovies) {
+        const res = await axios.get(`${PK}/movie/${item}`);
+        if (res.data) {
+          tempRecomments.push(res.data);
+        }
+      }
+      setRecomments(tempRecomments);
+    };
+  
+    if (movie.length > 0) {
+      getMovieById();
+    }
+  }, [movie]);
  
+
   // làm hiệu ứng slide trược
   const [startIndex, setStartIndex] = useState(0);
   const [endIndex, setEndIndex] = useState(3);
@@ -99,22 +212,23 @@ const Home = () => {
                     />
                   )}
                   {recomments?.slice(startIndex, endIndex + 1).map((movie, index) => {
+                    
                     return (
                       <div
-                        onClick={() => handleMoveMovieDetail(movie)}
+                        onClick={() => handleMoveMovieDetail(movie.data)}
                         key={index}
                         className={`buyticket-movie-item`}
                       >
                         <div className="buyticket-movie-img">
-                          <img src={movie?.main_slide || Photo} alt="" />
+                          <img src={movie?.data.mainSlide || Photo} alt="" />
                           <p>Mua vé</p>
                         </div>
                         <div className="buyticket-movie-name">
-                          <h2>{movie?.name}</h2>
-                          <h3>{movie?.category}</h3>
+                          <h2>{movie?.data.name}</h2>
+                          <h3>{movie?.data.category}</h3>
                           <p className="buyticket-movie-star">
                             <ThumbUpOffAltIcon />
-                            {Math.round(movie?.total_percent) + '%'}
+                            {Math.round(movie?.data.totalPercent) + '%'}
                           </p>
                         </div>
                       </div>
